@@ -3,10 +3,7 @@ package demo.controller;
 import demo.model.User;
 import demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Created by Quan Do on 6/17/2015.
@@ -33,6 +30,38 @@ public class UserController {
                         @RequestParam("password")String password) {
 
         User user = new User();
+        return user;
+    }
+
+    @RequestMapping(value="/update",method = RequestMethod.GET)
+    public User putUser(@RequestParam("info") String info,
+                        @RequestParam("name") String name,
+                        @RequestParam("password") String password) {
+        User user = new User();
+
+        user.setInfo(info);
+        user.setName(name);
+        user.setPassword(password);
+        userRepository.save(user);
+        return user;
+    }
+
+    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    public void deleteUser(@RequestParam("id") Integer id) {
+        User user = userRepository.findOne(id);
+        userRepository.delete(user);
+    }
+
+    @RequestMapping(value = "/edit", method = RequestMethod.GET)
+    public User editUser(@RequestParam("id") Integer id,
+                         @RequestParam("info") String info,
+                         @RequestParam("name") String name,
+                         @RequestParam("name") String password){
+        User user = userRepository.findOne(id);
+        user.setInfo(info);
+        user.setName(name);
+        user.setPassword(password);
+        userRepository.save(user);
         return user;
     }
 }

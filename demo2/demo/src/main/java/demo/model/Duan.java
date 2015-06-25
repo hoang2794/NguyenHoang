@@ -1,10 +1,6 @@
 package demo.model;
 
-import javax.persistence.Entity;
 import javax.persistence.*;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.xml.soap.Node;
 import java.util.*;
 
 /**
@@ -16,12 +12,26 @@ public class Duan {
     @Id
     private String MaDA;
     private String TenDA;
-    private String MaNV;
-    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL,targetEntity = Task.class,fetch = FetchType.LAZY)
-    private List<Task> listTask;
 
-    @OneToMany(mappedBy = "project",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
-    private List<Nhanvien> listNV;
+        @Transient
+        @OneToMany(mappedBy = "duan",cascade = CascadeType.ALL,targetEntity = Task.class,fetch = FetchType.LAZY)
+        private List<Task> listTask;
+
+        @Transient
+        @OneToMany(mappedBy = "nhanvien",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
+        private List<Nhanvien> listNV;
+
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name="macty",referencedColumnName = "macty")
+        private Congty duan;
+
+    public Congty getDuan() {
+        return duan;
+    }
+
+    public void setDuan(Congty duan) {
+        this.duan = duan;
+    }
 
     public List<Nhanvien> getListNV() {
         return listNV;
@@ -40,7 +50,6 @@ public class Duan {
         this.listTask = listTask;
     }
 
-
     public String getMaDA() {return MaDA;}
     public void setMaDA(String maDA) {this.MaDA = maDA;}
 
@@ -49,8 +58,6 @@ public class Duan {
     public void setTenDA(String tenDA) {this.TenDA = tenDA;}
 
 
-    public String getMaNV() {return MaNV;}
-    public void setMaNV(String maNV) {this.MaNV = maNV;}
 
 }
 

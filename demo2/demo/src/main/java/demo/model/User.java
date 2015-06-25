@@ -15,12 +15,26 @@ public class User {
     private String info;
     private String password;
 
+    @Transient
+    @OneToMany(mappedBy = "boss", cascade = CascadeType.ALL, targetEntity = Congty.class, fetch = FetchType.LAZY)
+    private List<Congty> Listcongty;
+
+
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public List<Congty> getListcongty() {
+        return Listcongty;
+    }
+
+    public void setListcongty(List<Congty> listcongty) {
+        this.Listcongty = listcongty;
     }
 
     public String getName() {

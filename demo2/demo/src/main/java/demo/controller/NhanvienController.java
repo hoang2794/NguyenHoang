@@ -1,15 +1,13 @@
 package demo.controller;
 
 import demo.model.Congty;
+import demo.model.Duan;
 import demo.model.Nhanvien;
 import demo.repository.CongtyRepository;
+import demo.repository.DuanRepository;
 import demo.repository.NhanvienRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import javax.persistence.Table;
 import java.util.*;
 
@@ -17,35 +15,44 @@ import java.util.*;
  * Created by Nguyen Hoang on 22-Jun-15.
  */
 @RestController
-@Table(name="/nhanvien")
+@RequestMapping(name="/nhanvien")
 public class NhanvienController {
     @Autowired
     NhanvienRepository nhanvienRepository;
 
     @Autowired
     CongtyRepository congtyRepository;
-    @RequestMapping(value = "/add",method = RequestMethod.GET)
-    public Nhanvien ADD(@RequestParam("macty")String macty,
-                         @RequestParam("MaNV")String MaNV,
-                         @RequestParam("name")String ten){
-        Nhanvien nhanvien = new Nhanvien();
 
+    @Autowired
+    DuanRepository duanRepository;
+    @RequestMapping(value = "/add",method = RequestMethod.GET)
+    public Nhanvien ADD(@RequestParam("manv")String MaNV,
+                        @RequestParam("name")String ten,
+                        @RequestParam("macty")String macty,
+                        @RequestParam("mada")String mada){
+        Congty congty = congtyRepository.findOne(macty);
+        Duan duan = duanRepository.findOne(mada);
+        Nhanvien nhanvien = new Nhanvien();
 
         nhanvien.setMaNV(MaNV);
         nhanvien.setTen(ten);
-        nhanvien.setMacty(macty);
+        nhanvien.setNhanvien(congty);
+        nhanvien.setDuan(duan);
         nhanvienRepository.save(nhanvien);
         return nhanvien;
     }
 
     @RequestMapping(value = "/edit",method = RequestMethod.GET)
-    private Nhanvien Edit(@RequestParam("MaNV")String MaNV,
+    private Nhanvien Edit(@RequestParam("manv")String MaNV,
                           @RequestParam("name")String ten,
-                          @RequestParam("macty")String macty){
+                          @RequestParam("macty")String macty,
+                          @RequestParam("mada")String mada){
         Nhanvien nhanvien = nhanvienRepository.findOne(MaNV);
-
+        Congty congty = congtyRepository.findOne(macty);
+        Duan duan = duanRepository.findOne(mada);
         nhanvien.setTen(ten);
-        nhanvien.setMacty(macty);
+        nhanvien.setDuan(duan);
+        nhanvien.setNhanvien(congty);
         nhanvienRepository.save(nhanvien);
         return nhanvien;
     }
@@ -54,22 +61,8 @@ public class NhanvienController {
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     private void Del(@RequestParam("MaNV")String MaNV){
         Nhanvien nhanvien = nhanvienRepository.findOne(MaNV);
-
-        nhanvienRepository.delete(nhanvien.getMacty());
+        nhanvienRepository.delete(nhanvien);
     }
 
-    private void List(@RequestParam("MaNV")String MaNV,
-                      @RequestParam("macty")String macty){
-        for(int i=0;i<10;i++){
-            Nhanvien nhanvien = new Nhanvien();
-            nhanvien.setMaNV(MaNV);
-            nhanvienRepository.save(nhanvien);
-            for(int j=0; j<15;j++){
-                Nhanvien congty = new Nhanvien();
-                congty.setMacty(macty);
-                congty.setCongty(nhanvien);
-                nhanvienRepository.save(congty);
-            }
-        }
-    }
+
 }

@@ -1,50 +1,49 @@
 package demo.controller;
 
-import demo.model.Nhanvien;
 import demo.model.Congty;
+import demo.model.User;
 import demo.repository.CongtyRepository;
+import demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.Table;
 
 /**
  * Created by Nguyen Hoang on 22-Jun-15.
  */
 @RestController
-@Table(name="/congty")
+@RequestMapping(name="/congty")
 public class CongtyController {
-    private final CongtyRepository congtyRepository;
 
     @Autowired
-    public CongtyController(CongtyRepository congtyRepository){
-        this.congtyRepository=congtyRepository;
-    }
+    UserRepository userRepository;
+
+    @Autowired
+    CongtyRepository congtyRepository;
 
     @RequestMapping(value="/add", method = RequestMethod.GET)
-    private Congty ADD(@RequestParam("id") int boss,
-                       @RequestParam("macty")String macty,
-                       @RequestParam("name")String name){
+    public Congty ADD(@RequestParam("boss_id")Integer id,
+                      @RequestParam("macty")String macty,
+                      @RequestParam("name")String name){
+        User boss = userRepository.findOne(id);
         Congty congty = new Congty();
 
-        congty.setBoss(boss);
         congty.setMacty(macty);
         congty.setName(name);
+        congty.setBoss(boss);
         congtyRepository.save(congty);
         return congty;
     }
 
     @RequestMapping(value="/edit", method = RequestMethod.GET)
-    private Congty Edit(@RequestParam("macty")String macty,
-                        @RequestParam("id")int boss,
-                        @RequestParam("name")String name){
+    public Congty Edit(@RequestParam("macty")String macty,
+                        @RequestParam("name")String name,
+                       @RequestParam("boss_id")Integer id){
         Congty congty = congtyRepository.findOne(macty);
+        User boss = userRepository.findOne(id);
 
-        congty.setBoss(boss);
         congty.setName(name);
+        congty.setBoss(boss);
         congtyRepository.save(congty);
         return congty;
     }

@@ -1,6 +1,5 @@
 package demo.model;
 
-import javax.annotation.Resource;
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,27 +12,43 @@ public class Congty {
     @Id
     private String macty;
     private String name;
-    private int boss;
-    private Nhanvien nhanvien;
 
-    public Nhanvien getNhanvien() {
-        return nhanvien;
+
+        @Transient
+        @OneToMany(mappedBy = "nhanvien",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
+        private List<Nhanvien> listNV;
+
+        @Transient
+        @OneToMany(mappedBy = "duan", cascade = CascadeType.ALL, targetEntity = Duan.class, fetch = FetchType.LAZY)
+        private List<Duan> listDA;
+
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name="boss_id",referencedColumnName = "id")
+        private  User boss;
+
+    public User getBoss() {
+        return boss;
     }
 
-    public void setNhanvien(Nhanvien nhanvien) {
-        this.nhanvien = nhanvien;
+    public void setBoss(User boss) {
+        this.boss = boss;
     }
 
-    @OneToMany(mappedBy = "nhanvien",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
-    private List<Nhanvien> listNV;
+    public List<Duan> getListDA() {
+            return listDA;
+        }
 
-    public List<Nhanvien> getListNV() {
-        return listNV;
-    }
+        public void setListDA(List<Duan> listDA) {
+            this.listDA = listDA;
+        }
 
-    public void setListNV(List<Nhanvien> listNV) {
-        this.listNV = listNV;
-    }
+        public List<Nhanvien> getListNV() {
+            return listNV;
+        }
+
+        public void setListNV(List<Nhanvien> listNV) {
+            this.listNV = listNV;
+        }
 
     public String getMacty() {return macty;}
 
@@ -43,7 +58,4 @@ public class Congty {
 
     public void setName(String ten) {this.name = name;}
 
-    public int getBoss() {return boss;}
-
-    public void setBoss(int boss) {this.boss = boss;}
 }

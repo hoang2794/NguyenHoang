@@ -11,25 +11,29 @@ public class Nhanvien {
     @Id
     private String MaNV;
     private String ten;
-    private String macty;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="parent_task_id",referencedColumnName = "macty")
-    private Nhanvien congty;
 
-    public Nhanvien getCongty() {
-        return congty;
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name="macty",referencedColumnName = "macty")
+        private Congty nhanvien;
+
+        @ManyToOne(fetch = FetchType.EAGER)
+        @JoinColumn(name="MaDA", referencedColumnName = "MaDA")
+        private Duan duan;
+
+        public Duan getDuan() {
+            return duan;
+        }
+
+        public void setDuan(Duan duan) {
+            this.duan = duan;
+        }
+
+    public Congty getNhanvien() {
+        return nhanvien;
     }
 
-    public void setCongty(Nhanvien congty) {
-        this.congty = congty;
-    }
-
-    public String getMacty() {
-        return macty;
-    }
-
-    public void setMacty(String macty) {
-        this.macty = macty;
+    public void setNhanvien(Congty nhanvien) {
+        this.nhanvien = nhanvien;
     }
 
     public String getMaNV() {
