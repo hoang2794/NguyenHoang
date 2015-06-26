@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by Nguyen Hoang on 22-Jun-15.
  */
 @RestController
-@RequestMapping (name="/duan")
+@RequestMapping ("/duan")
 public class DuanController {
     @Autowired
     DuanRepository duanRepository;
@@ -23,8 +23,9 @@ public class DuanController {
     @RequestMapping(name = "/add",method = RequestMethod.GET)
     public Duan Add(@RequestParam("tenda")String TenDA,
                     @RequestParam("mada")String MaDA,
-                     @RequestParam("macty")String macty) {
+                    @RequestParam("macty")String macty) {
         Congty congty = congtyRepository.findOne(macty);
+        congty.getMacty();
         Duan duan = new Duan();
         duan.setMaDA(MaDA);
         duan.setTenDA(TenDA);
@@ -33,11 +34,12 @@ public class DuanController {
         return duan;
     }
 
-    @RequestMapping(name = "/edit",method = RequestMethod.GET)
+    @RequestMapping(name = "/edit",method = RequestMethod.PUT)
     public Duan Edit(@RequestParam("tenda")String TenDA,
                      @RequestParam("mada")String MaDA,
                      @RequestParam("macty")String macty) {
         Congty congty = congtyRepository.findOne(macty);
+        congty.getMacty();
         Duan duan = duanRepository.findOne(MaDA);
         duan.setTenDA(TenDA);
         duan.setDuan(congty);
@@ -45,7 +47,7 @@ public class DuanController {
         return duan;
     }
 
-    @RequestMapping(name= "/delete", method = RequestMethod.GET)
+    @RequestMapping(name= "/delete", method = RequestMethod.DELETE)
     public void Del(@RequestParam("mada")String MaDA){
         Duan duan = duanRepository.findOne(MaDA);
         duanRepository.delete(duan);

@@ -15,7 +15,7 @@ import java.util.*;
  * Created by Nguyen Hoang on 22-Jun-15.
  */
 @RestController
-@RequestMapping(name="/nhanvien")
+@RequestMapping("/nhanvien")
 public class NhanvienController {
     @Autowired
     NhanvienRepository nhanvienRepository;
@@ -31,7 +31,9 @@ public class NhanvienController {
                         @RequestParam("macty")String macty,
                         @RequestParam("mada")String mada){
         Congty congty = congtyRepository.findOne(macty);
+        congty.getMacty();
         Duan duan = duanRepository.findOne(mada);
+        duan.getMaDA();
         Nhanvien nhanvien = new Nhanvien();
 
         nhanvien.setMaNV(MaNV);
@@ -42,14 +44,16 @@ public class NhanvienController {
         return nhanvien;
     }
 
-    @RequestMapping(value = "/edit",method = RequestMethod.GET)
+    @RequestMapping(value = "/edit",method = RequestMethod.PUT)
     private Nhanvien Edit(@RequestParam("manv")String MaNV,
                           @RequestParam("name")String ten,
                           @RequestParam("macty")String macty,
                           @RequestParam("mada")String mada){
         Nhanvien nhanvien = nhanvienRepository.findOne(MaNV);
         Congty congty = congtyRepository.findOne(macty);
+        congty.getMacty();
         Duan duan = duanRepository.findOne(mada);
+        duan.getMaDA();
         nhanvien.setTen(ten);
         nhanvien.setDuan(duan);
         nhanvien.setNhanvien(congty);
@@ -58,7 +62,7 @@ public class NhanvienController {
     }
 
 
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     private void Del(@RequestParam("MaNV")String MaNV){
         Nhanvien nhanvien = nhanvienRepository.findOne(MaNV);
         nhanvienRepository.delete(nhanvien);

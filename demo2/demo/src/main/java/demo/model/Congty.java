@@ -13,26 +13,18 @@ public class Congty {
     private String macty;
     private String name;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="boss_id",referencedColumnName = "id")
+    private  User boss;
 
-        @Transient
-        @OneToMany(mappedBy = "nhanvien",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
-        private List<Nhanvien> listNV;
+    @Transient
+    @OneToMany(mappedBy = "macty",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
+    private List<Nhanvien> listNV;
 
-        @Transient
-        @OneToMany(mappedBy = "duan", cascade = CascadeType.ALL, targetEntity = Duan.class, fetch = FetchType.LAZY)
-        private List<Duan> listDA;
+    @Transient
+    @OneToMany(mappedBy = "macty", cascade = CascadeType.ALL, targetEntity = Duan.class, fetch = FetchType.LAZY)
+    private List<Duan> listDA;
 
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name="boss_id",referencedColumnName = "id")
-        private  User boss;
-
-    public User getBoss() {
-        return boss;
-    }
-
-    public void setBoss(User boss) {
-        this.boss = boss;
-    }
 
     public List<Duan> getListDA() {
             return listDA;
@@ -49,6 +41,13 @@ public class Congty {
         public void setListNV(List<Nhanvien> listNV) {
             this.listNV = listNV;
         }
+    public User getBoss() {
+        return boss;
+    }
+
+    public void setBoss(User boss) {
+        this.boss = boss;
+    }
 
     public String getMacty() {return macty;}
 
@@ -56,6 +55,6 @@ public class Congty {
 
     public String getName() {return name;}
 
-    public void setName(String ten) {this.name = name;}
+    public void setName(String name) {this.name = name;}
 
 }

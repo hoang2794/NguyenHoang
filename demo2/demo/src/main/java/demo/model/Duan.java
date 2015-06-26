@@ -13,25 +13,21 @@ public class Duan {
     private String MaDA;
     private String TenDA;
 
-        @Transient
-        @OneToMany(mappedBy = "duan",cascade = CascadeType.ALL,targetEntity = Task.class,fetch = FetchType.LAZY)
-        private List<Task> listTask;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="macty",referencedColumnName = "macty")
+    private Congty duan;
 
-        @Transient
-        @OneToMany(mappedBy = "nhanvien",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
-        private List<Nhanvien> listNV;
+    @Transient
+    @OneToMany(mappedBy = "project_id",cascade = CascadeType.ALL,targetEntity = Task.class,fetch = FetchType.LAZY)
+    private List<Task> listTask;
 
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name="macty",referencedColumnName = "macty")
-        private Congty duan;
+    @Transient
+    @OneToMany(mappedBy = "MaDA",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
+    private List<Nhanvien> listNV;
 
-    public Congty getDuan() {
-        return duan;
-    }
 
-    public void setDuan(Congty duan) {
-        this.duan = duan;
-    }
+
+
 
     public List<Nhanvien> getListNV() {
         return listNV;
@@ -48,6 +44,14 @@ public class Duan {
 
     public void setListTask(List<Task> listTask) {
         this.listTask = listTask;
+    }
+
+     public Congty getDuan() {
+        return duan;
+    }
+
+    public void setDuan(Congty duan) {
+        this.duan = duan;
     }
 
     public String getMaDA() {return MaDA;}

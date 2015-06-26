@@ -17,13 +17,22 @@ public class Task {
     @JoinColumn(name="parent_task_id",referencedColumnName = "id")
     private Task taskParent;
 
-    @Transient
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "taskParent",cascade = CascadeType.ALL,targetEntity = Task.class)
-    private List<Task> TaskChild;
-
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id",referencedColumnName = "MaDA")
     private Duan duan;
+
+    @Transient
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "parent_task_id",cascade = CascadeType.ALL,targetEntity = Task.class)
+    private List<Task> TaskChild;
+
+    public List<Task> getTaskChild() {
+
+        return TaskChild;
+    }
+
+    public void setTaskChild(List<Task> taskChild) {
+        TaskChild = taskChild;
+    }
 
     public Duan getDuan() {
         return duan;
@@ -57,12 +66,5 @@ public class Task {
         this.taskParent = taskParent;
     }
 
-    public List<Task> getTaskChild() {
 
-        return TaskChild;
-    }
-
-    public void setTaskChild(List<Task> taskChild) {
-        TaskChild = taskChild;
-    }
 }

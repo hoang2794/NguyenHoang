@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
  * Created by Nguyen Hoang on 25-Jun-15.
  */
 @RestController
-@RequestMapping(name="/task")
+@RequestMapping("/task")
 public class TaskController {
     @Autowired
     DuanRepository duanRepository;
@@ -25,7 +25,9 @@ public class TaskController {
                     @RequestParam("duanid")String duanid,
                     @RequestParam("parentid")Integer pid){
         Duan duan = duanRepository.findOne(duanid);
+        duan.getMaDA();
         Task taskparent = taskRepository.findOne(pid);
+        taskparent.getId();
         Task task = new Task();
 
         task.setId(id);
@@ -36,14 +38,16 @@ public class TaskController {
         return task;
     }
 
-    @RequestMapping(name= "/edit",method = RequestMethod.GET)
+    @RequestMapping(name= "/edit",method = RequestMethod.PUT)
     public Task Edit(@RequestParam("taskid")Integer id,
                     @RequestParam("taskname")String name,
                     @RequestParam("duanid")String duanid,
                     @RequestParam("parentid")Integer pid){
         Task task = taskRepository.findOne(id);
         Task taskparent = taskRepository.findOne(pid);
+        taskparent.getId();
         Duan duan = duanRepository.findOne(duanid);
+        duan.getMaDA();
 
         task.setName(name);
         task.setDuan(duan);
@@ -52,7 +56,7 @@ public class TaskController {
         return task;
     }
 
-    @RequestMapping(name="/delete", method = RequestMethod.GET)
+    @RequestMapping(name="/delete", method = RequestMethod.DELETE)
     public void Del(@RequestParam("taskid")Integer id){
         Task task = taskRepository.findOne(id);
         taskRepository.delete(task);

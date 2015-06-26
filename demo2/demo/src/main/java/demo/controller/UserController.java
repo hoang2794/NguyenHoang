@@ -1,9 +1,14 @@
 package demo.controller;
 
+import demo.model.Congty;
 import demo.model.User;
+import demo.repository.CongtyRepository;
 import demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Quan Do on 6/17/2015.
@@ -11,14 +16,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/boss")
 public class UserController {
-
-    private final UserRepository userRepository;
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
+    CongtyRepository congtyRepository;
     @RequestMapping(value ="/get",method= RequestMethod.GET)
     public User getUser(@RequestParam("id")Integer id) {
         User user = userRepository.findOne(id);
@@ -46,13 +48,13 @@ public class UserController {
         return user;
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
     public void deleteUser(@RequestParam("id") Integer id) {
         User user = userRepository.findOne(id);
         userRepository.delete(user);
     }
 
-    @RequestMapping(value = "/edit", method = RequestMethod.GET)
+    @RequestMapping(value = "/edit", method = RequestMethod.PUT)
     public User editUser(@RequestParam("id") Integer id,
                          @RequestParam("info") String info,
                          @RequestParam("name") String name,
@@ -64,4 +66,16 @@ public class UserController {
         userRepository.save(user);
         return user;
     }
+
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public List<Congty> list(@RequestParam("id")Integer id){
+        List<Congty> listcongty = userRepository.listofcongty(id);
+        int count = listcongty.size();
+        for(int i = 0;i<=count;i++){
+            listcongty.get(i);
+            return listcongty;
+        }
+        return listcongty;
+    }
+
 }

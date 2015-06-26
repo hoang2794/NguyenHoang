@@ -16,9 +16,16 @@ public class User {
     private String password;
 
     @Transient
-    @OneToMany(mappedBy = "boss", cascade = CascadeType.ALL, targetEntity = Congty.class, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "boss_id", cascade = CascadeType.ALL, targetEntity = Congty.class, fetch = FetchType.LAZY)
     private List<Congty> Listcongty;
 
+    public List<Congty> getListcongty() {
+        return Listcongty;
+    }
+
+    public void setListcongty(List<Congty> listcongty) {
+        this.Listcongty = listcongty;
+    }
 
 
     public Integer getId() {
@@ -29,13 +36,7 @@ public class User {
         this.id = id;
     }
 
-    public List<Congty> getListcongty() {
-        return Listcongty;
-    }
 
-    public void setListcongty(List<Congty> listcongty) {
-        this.Listcongty = listcongty;
-    }
 
     public String getName() {
         return name;
