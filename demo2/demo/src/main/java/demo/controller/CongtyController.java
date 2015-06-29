@@ -1,10 +1,7 @@
 package demo.controller;
 
-import demo.model.Congty;
-import demo.model.Nhanvien;
-import demo.model.User;
-import demo.repository.CongtyRepository;
-import demo.repository.UserRepository;
+import demo.model.*;
+import demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,54 +20,80 @@ public class CongtyController {
 
     @Autowired
     CongtyRepository congtyRepository;
+
+    @Autowired
+    NhanvienRepository nhanvienRepository;
+
+    @Autowired
+    DuanRepository duanRepository;
+
+    @Autowired
+    TaskRepository taskRepository;
     @RequestMapping(value ="/get",method= RequestMethod.GET)
     public Congty Get(@RequestParam("macty")String macty) {
        Congty congty   = congtyRepository.findOne(macty);
         return congty;
     }
 
-    @RequestMapping(value="/add", method = RequestMethod.GET)
+    @RequestMapping(value="/add", method = RequestMethod.POST)
     public Congty ADD(@RequestParam("boss_id")Integer id,
+                      @RequestParam("password")String password,
                       @RequestParam("macty")String macty,
                       @RequestParam("name")String name){
-        User boss = userRepository.findOne(id);
         Congty congty = new Congty();
-
-        congty.setMacty(macty);
-        congty.setName(name);
-        congty.setBoss(boss);
-        congtyRepository.save(congty);
+        User user = userRepository.findOne(id);
+        if(user.getPassword()==password) {
+            if (congtyRepository.exists(macty)==false){
+                congty.setMacty(macty);
+                congty.setName(name);
+                congty.setBossid(id);
+                congtyRepository.save(congty);
+                return congty;
+            }
+        }
         return congty;
     }
 
     @RequestMapping(value="/edit", method = RequestMethod.PUT)
     public Congty Edit(@RequestParam("macty")String macty,
                         @RequestParam("name")String name,
-                       @RequestParam("boss_id")Integer id){
-        Congty congty = congtyRepository.findOne(macty);
-        User boss = userRepository.findOne(id);
-        boss.getId();
-
-        congty.setName(name);
-        congty.setBoss(boss);
-        congtyRepository.save(congty);
+                       @RequestParam("boss_id")Integer id,
+                       @RequestParam("password")String password){
+        Congty congty= new Congty();
+        User user = userRepository.findOne(id);
+        if(user.getPassword()==password) {
+            congty = congtyRepository.findOne(macty);
+            if (userRepository.exists(id)) {
+                congty.setName(name);
+                congty.setBossid(id);
+                congtyRepository.save(congty);
+                return congty;
+            }
+        }
         return congty;
     }
 
     @RequestMapping(value= "/delete",method = RequestMethod.DELETE)
     private void Del(@RequestParam("macty")String macty){
         Congty congty = congtyRepository.findOne(macty);
-        congtyRepository.delete(congty);
+        if(congtyRepository.exists(macty)){
+            nhanvienRepository.DelNV(macty);
+            congtyRepository.delete(congty);
+        }
     }
 
-    @RequestMapping(value = "/listnv", method = RequestMethod.GET)
-    public List<Nhanvien> list(@RequestParam("macty")String macty){
-        List<Nhanvien> listnv = congtyRepository.listofnhanvien(macty);
-        int count = listnv.size();
-        for(int i=0;i<=count;i++){
-            listnv.get(i);
-            return listnv;
+    @RequestMapping(value = "/list", method = RequestMethod.GET)
+    public Congty ListNV(@RequestParam("macty")String macty){
+        Congty congty = congtyRepository.findOne(macty);
+        congty.setListNV(nhanvienRepository.listnhanvienCT(macty));
+        congty.setListDA(duanRepository.listofDA(macty));
+        List<Duan> duanList = duanRepository.listofDA(macty);
+        for(Duan duanE : duanList){
+            duanE.setListNV(nhanvienRepository.listnhanvienDA(duanE.getMaDA()));
+            duanE.setListTask(taskRepository.listoftask(duanE.getMaDA()));
+            duanRepository.save(duanE);
         }
-        return listnv;
+        congtyRepository.save(congty);
+        return congty;
     }
 }

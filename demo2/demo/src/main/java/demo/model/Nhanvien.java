@@ -11,29 +11,23 @@ public class Nhanvien {
     @Id
     private String MaNV;
     private String ten;
+    private String macty;
+    private String MaDa;
 
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name="macty",referencedColumnName = "macty")
-        private Congty nhanvien;
-
-        @ManyToOne(fetch = FetchType.EAGER)
-        @JoinColumn(name="MaDA", referencedColumnName = "MaDA")
-        private Duan duan;
-
-        public Duan getDuan() {
-            return duan;
-        }
-
-        public void setDuan(Duan duan) {
-            this.duan = duan;
-        }
-
-    public Congty getNhanvien() {
-        return nhanvien;
+    public String getMaDa() {
+        return MaDa;
     }
 
-    public void setNhanvien(Congty nhanvien) {
-        this.nhanvien = nhanvien;
+    public void setMaDa(String maDa) {
+        MaDa = maDa;
+    }
+
+    public String getMacty() {
+        return macty;
+    }
+
+    public void setMacty(String macty) {
+        this.macty = macty;
     }
 
     public String getMaNV() {

@@ -12,21 +12,21 @@ public class Duan {
     @Id
     private String MaDA;
     private String TenDA;
+    private String macty;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="macty",referencedColumnName = "macty")
-    private Congty duan;
+    public String getMacty() {
+        return macty;
+    }
+
+    public void setMacty(String macty) {
+        this.macty = macty;
+    }
 
     @Transient
-    @OneToMany(mappedBy = "project_id",cascade = CascadeType.ALL,targetEntity = Task.class,fetch = FetchType.LAZY)
     private List<Task> listTask;
 
     @Transient
-    @OneToMany(mappedBy = "MaDA",cascade = CascadeType.ALL,targetEntity = Nhanvien.class,fetch = FetchType.LAZY)
     private List<Nhanvien> listNV;
-
-
-
 
 
     public List<Nhanvien> getListNV() {
@@ -44,14 +44,6 @@ public class Duan {
 
     public void setListTask(List<Task> listTask) {
         this.listTask = listTask;
-    }
-
-     public Congty getDuan() {
-        return duan;
-    }
-
-    public void setDuan(Congty duan) {
-        this.duan = duan;
     }
 
     public String getMaDA() {return MaDA;}

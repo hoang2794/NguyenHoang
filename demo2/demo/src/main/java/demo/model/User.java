@@ -16,7 +16,6 @@ public class User {
     private String password;
 
     @Transient
-    @OneToMany(mappedBy = "boss_id", cascade = CascadeType.ALL, targetEntity = Congty.class, fetch = FetchType.LAZY)
     private List<Congty> Listcongty;
 
     public List<Congty> getListcongty() {

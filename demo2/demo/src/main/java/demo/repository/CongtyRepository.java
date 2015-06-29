@@ -13,6 +13,6 @@ import java.util.List;
  */
 public interface CongtyRepository extends CrudRepository<Congty,String> {
     @RestResource(exported = false)
-    @Query("select nhanvien from Nhanvien nhanvien where nhanvien.nhanvien.macty=?1")
-    List<Nhanvien> listofnhanvien(String macty);
+    @Query("select congty from Congty congty where congty.bossid=?1")
+    List<Congty> listofcongty(Integer bossid);
 }

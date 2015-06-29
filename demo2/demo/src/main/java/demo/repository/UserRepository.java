@@ -16,4 +16,11 @@ public interface UserRepository  extends CrudRepository<User,Integer>{
     @RestResource(exported = false)
     @Query("select congty from Congty congty where congty.boss.id=?1")
     List<Congty> listofcongty(Integer id);
+    @RestResource(exported = false)
+    @Query("select user from User user where user.name=?1")
+    User findname(String name);
+
+    @RestResource(exported = false)
+    @Query("select user from User user where user.id=?1 and user.password=?2")
+    boolean Login(Integer id,String password);
 }
