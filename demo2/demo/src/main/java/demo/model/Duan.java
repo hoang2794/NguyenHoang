@@ -13,6 +13,15 @@ public class Duan {
     private String MaDA;
     private String TenDA;
     private String macty;
+    private String manager;
+
+    public String getManager() {
+        return manager;
+    }
+
+    public void setManager(String manager) {
+        this.manager = manager;
+    }
 
     public String getMacty() {
         return macty;

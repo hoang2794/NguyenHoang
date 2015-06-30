@@ -29,11 +29,9 @@ public class CongtyController {
 
     @Autowired
     TaskRepository taskRepository;
-    @RequestMapping(value ="/get",method= RequestMethod.GET)
-    public Congty Get(@RequestParam("macty")String macty) {
-       Congty congty   = congtyRepository.findOne(macty);
-        return congty;
-    }
+
+    @Autowired
+    DuanController duanController;
 
     @RequestMapping(value="/add", method = RequestMethod.POST)
     public Congty ADD(@RequestParam("boss_id")Integer id,
@@ -41,45 +39,52 @@ public class CongtyController {
                       @RequestParam("macty")String macty,
                       @RequestParam("name")String name){
         Congty congty = new Congty();
-        User user = userRepository.findOne(id);
-        if(user.getPassword()==password) {
-            if (congtyRepository.exists(macty)==false){
+        User user = userRepository.Login(id, password);
+        if(user!=null){
                 congty.setMacty(macty);
                 congty.setName(name);
                 congty.setBossid(id);
                 congtyRepository.save(congty);
                 return congty;
-            }
         }
         return congty;
     }
 
     @RequestMapping(value="/edit", method = RequestMethod.PUT)
     public Congty Edit(@RequestParam("macty")String macty,
+                       @RequestParam("newmacty")String newmacty,
                         @RequestParam("name")String name,
                        @RequestParam("boss_id")Integer id,
                        @RequestParam("password")String password){
         Congty congty= new Congty();
-        User user = userRepository.findOne(id);
-        if(user.getPassword()==password) {
+        User user = userRepository.Login(id,password);
+        if(user!=null) {
             congty = congtyRepository.findOne(macty);
-            if (userRepository.exists(id)) {
-                congty.setName(name);
-                congty.setBossid(id);
-                congtyRepository.save(congty);
-                return congty;
+            congty.setName(name);
+            List<Duan> duanList = duanRepository.listofDA(macty);
+            int count = duanList.size();
+            for(int i=0;i<=count;i++){
+                Duan duan = duanRepository.findOne(duanList.get(i).getMaDA());
+                duan.setMacty(newmacty);
+                duanRepository.save(duan);
             }
+            congty.setMacty(newmacty);
+            congtyRepository.save(congty);
+            return congty;
         }
         return congty;
     }
 
     @RequestMapping(value= "/delete",method = RequestMethod.DELETE)
-    private void Del(@RequestParam("macty")String macty){
-        Congty congty = congtyRepository.findOne(macty);
-        if(congtyRepository.exists(macty)){
+    public void Del(@RequestParam("macty")String macty){
+            Congty congty = congtyRepository.findOne(macty);
             nhanvienRepository.DelNV(macty);
+            List<Duan> duanList = duanRepository.listofDA(macty);
+            int count = duanList.size();
+            for(int i =0;i<count;i++){
+                duanController.Del(duanList.get(i).getMaDA());
+            }
             congtyRepository.delete(congty);
-        }
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
@@ -91,6 +96,11 @@ public class CongtyController {
         for(Duan duanE : duanList){
             duanE.setListNV(nhanvienRepository.listnhanvienDA(duanE.getMaDA()));
             duanE.setListTask(taskRepository.listoftask(duanE.getMaDA()));
+            List<Task> listtaskchild = taskRepository.listoftask(duanE.getMaDA());
+            for(Task taskchild: listtaskchild){
+                taskchild.setTaskChild(taskRepository.listoftaskchild(taskchild.getId()));
+                taskRepository.save(taskchild);
+            }
             duanRepository.save(duanE);
         }
         congtyRepository.save(congty);

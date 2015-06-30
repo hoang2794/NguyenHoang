@@ -30,6 +30,23 @@ public class UserController {
 
     @Autowired
     DuanRepository duanRepository;
+
+    @Autowired
+    CongtyController congtyController;
+    private int section;
+    public int getSection() {
+        return section;
+    }
+    public void setSection(int section) {
+        this.section = section;
+    }
+
+
+    private int Section(int id,String pass){
+        int abc;
+        abc= id*10+ Integer.parseInt(pass);
+        return abc;
+    }
     @RequestMapping(value ="/get",method= RequestMethod.GET)
     public User getUser(@RequestParam("id")Integer id) {
         User user = userRepository.findOne(id);
@@ -39,9 +56,10 @@ public class UserController {
     @RequestMapping(value ="/login",method= RequestMethod.POST)
     public String getUser(@RequestParam("id")Integer id,
                         @RequestParam("password")String password) {
-        User user = userRepository.findOne(id);
-        if(user.getPassword()==password){
-            return "OK";
+        User user = userRepository.Login(id, password);
+        if (user != null) {
+            section = Section(id, password);
+            return "WELCOME";
         }
         return "ERROR";
     }
@@ -60,10 +78,14 @@ public class UserController {
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public void deleteUser(@RequestParam("id") Integer id,
-                           @RequestParam("password")String password) {
+    public void deleteUser(@RequestParam("id") Integer id) {
         User user = userRepository.findOne(id);
-        if(user.getPassword()== password) {
+        if(getSection()==Section(user.getId(),user.getPassword())){
+            List<Congty> congtyList = congtyRepository.listofcongty(id);
+            int count = congtyList.size();
+            for(int i=0; i<count;i++){
+                congtyController.Del(congtyList.get(i).getMacty());
+            }
             userRepository.delete(user);
         }
     }
@@ -71,16 +93,15 @@ public class UserController {
     @RequestMapping(value = "/edit", method = RequestMethod.PUT)
     public User editUser(@RequestParam("id") Integer id,
                          @RequestParam("info") String info,
-                         @RequestParam("name") String name,
-                         @RequestParam("name") String password){
-        User user = userRepository.findOne(id);
-        if(user.getPassword()==password){
-            user.setInfo(info);
-            user.setName(name);
-            userRepository.save(user);
-            return user;
-        }
-        return user;
+                         @RequestParam("name") String name){
+            User user = userRepository.findOne(id);
+            if(getSection()==Section(user.getId(),user.getPassword())) {
+                user.setInfo(info);
+                user.setName(name);
+                userRepository.save(user);
+                return user;
+            }
+        return null;
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)

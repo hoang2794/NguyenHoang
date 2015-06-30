@@ -10,7 +10,7 @@ import demo.repository.NhanvienRepository;
 import demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import java.util.*;
+import java.lang.*;
 
 /**
  * Created by Nguyen Hoang on 22-Jun-15.
@@ -29,56 +29,74 @@ public class NhanvienController {
 
     @Autowired
     UserRepository userRepository;
-    @RequestMapping(value = "/add",method = RequestMethod.GET)
+    @RequestMapping(value = "/add",method = RequestMethod.POST)
     public Nhanvien ADD(@RequestParam("manv")String MaNV,
                         @RequestParam("name")String ten,
                         @RequestParam("macty")String macty,
+                        @RequestParam("passwordnv")String pwnv,
                         @RequestParam("mada")String mada,
                         @RequestParam("bossid")Integer id,
                         @RequestParam("password")String password){
         Nhanvien nhanvien = new Nhanvien();
-        if(userRepository.Login(id,password)) {
-            if (nhanvienRepository.exists(MaNV)) {
-                return nhanvien;
-            } else if (congtyRepository.exists(macty)) {
-                        if (duanRepository.exists(mada)) {
-                            nhanvien.setMaNV(MaNV);
-                            nhanvien.setTen(ten);
-                        return nhanvien;
+        User user = userRepository.Login(id,password);
+        if(user!=null) {
+            if (congtyRepository.exists(macty)){
+                    nhanvien.setMaNV(MaNV);
+                    nhanvien.setTen(ten);
+                    nhanvien.setMacty(macty);
+                    nhanvien.setPassword(pwnv);
+                        if(duanRepository.exists(mada)) {
+                            nhanvien.setMaDa(mada);
                         }
-                    }
+                    nhanvienRepository.save(nhanvien);
+                return nhanvien;
             }
+        }
         return nhanvien;
     }
 
     @RequestMapping(value = "/edit",method = RequestMethod.PUT)
     private Nhanvien Edit(@RequestParam("manv")String MaNV,
                           @RequestParam("name")String ten,
-                          @RequestParam("macty")String macty,
+                          @RequestParam("newpassword")String newpass,
                           @RequestParam("mada")String mada,
-                          @RequestParam("bossid")Integer id,
                           @RequestParam("password")String password){
-        Nhanvien nhanvien = new Nhanvien();
-        if(userRepository.Login(id,password)==true){
+        Nhanvien nhanvien = nhanvienRepository.Login(MaNV,password);
+        if(nhanvien!=null){
             nhanvien = nhanvienRepository.findOne(MaNV);
-            if (congtyRepository.exists(macty)) {
-                if (duanRepository.exists(mada)) {
-                    nhanvien.setTen(ten);
-                    nhanvien.setMacty(macty);
-                    nhanvien.setMaDa(mada);
-                    return nhanvien;
-                }
+            nhanvien.setTen(ten);
+            nhanvien.setMaDa(mada);
+            nhanvien.setPassword(newpass);
+            nhanvienRepository.save(nhanvien);
+            return nhanvien;
+        }
+        return null;
+    }
+
+    @RequestMapping(value = "/invite",method = RequestMethod.GET)
+    public Nhanvien Invite(@RequestParam("manager")String manv,
+                           @RequestParam("password")String password,
+                           @RequestParam("mada")String mada,
+                           @RequestParam("nhanvien")String manv1){
+        Nhanvien nhanvien1 = nhanvienRepository.findOne(manv1);
+        Nhanvien nhanvien = nhanvienRepository.Login(manv,password);
+        Duan duan = duanRepository.findOne(mada);
+        if(nhanvien!=null){
+            if(nhanvien.getMaNV().compareTo(duan.getManager())==0){
+                nhanvien1.setMaDa(mada);
+                nhanvienRepository.save(nhanvien1);
+                return nhanvien1;
             }
         }
         return nhanvien;
     }
 
-
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    private String Del(@RequestParam("id")Integer id,
+    private String Del(@RequestParam("bossid")Integer id,
                      @RequestParam("password")String password,
-                     @RequestParam("MaNV")String MaNV){
-        if(userRepository.Login(id,password)==true) {
+                     @RequestParam("manv")String MaNV){
+        User user = userRepository.Login(id,password);
+        if(user!=null) {
             Nhanvien nhanvien = nhanvienRepository.findOne(MaNV);
             nhanvienRepository.delete(nhanvien);
             return "OK";

@@ -27,4 +27,8 @@ public interface NhanvienRepository extends CrudRepository<Nhanvien,String> {
     @Query("select nhanvien from Nhanvien nhanvien where nhanvien.MaDa=?1")
     List<Nhanvien> listnhanvienDA(String macty);
 
+    @RestResource(exported = false)
+    @Query("select nhanvien1 from Nhanvien nhanvien1 where nhanvien1.MaNV=?1 and nhanvien1.password=?2")
+    Nhanvien Login(String MaNV,String password);
+
 }

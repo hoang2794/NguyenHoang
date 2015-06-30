@@ -13,6 +13,15 @@ public class Nhanvien {
     private String ten;
     private String macty;
     private String MaDa;
+    private String password;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getMaDa() {
         return MaDa;
