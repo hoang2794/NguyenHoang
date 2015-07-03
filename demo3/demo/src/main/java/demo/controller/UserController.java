@@ -33,10 +33,11 @@ public class UserController {
     @Autowired
     DuanJpaRepository duanJpaRepository;
 
+    @Autowired
+    CongtyNhanvienRepository congtyNhanvienRepository;
     @RequestMapping(value ="/get",method= RequestMethod.GET)
     public User getUser(@RequestParam("id")String id) {
-        User user = userRepository.findOne(id);
-        return user;
+        return userRepository.findOne(id);
     }
 
     @RequestMapping(value ="/login",method= RequestMethod.POST)
@@ -58,21 +59,13 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value="/add",method = RequestMethod.GET)
-    public UserReturn putUser(@RequestParam("bossid") String id,
-                        @RequestParam("name") String name,
-                        @RequestParam("password") String password) {
+    @RequestMapping(value="/add",method = RequestMethod.POST)
+    public UserReturn putUser(@RequestParam("name") String name,
+                              @RequestParam("password") String password) {
         HashMap errorList = new HashMap();
         UserReturn userReturn;
-        if(userRepository.exists(id)){
-            userReturn = new UserReturn(errorList);
-            errorList.put(-2,"Add Fail");
-            return userReturn;
-        }
-        String salt = BCrypt.gensalt();
-        User user = new User(id,name,BCrypt.hashpw(password,salt),salt);
+        User user = new User(name,BCrypt.hashpw(password,BCrypt.gensalt()));
         userRepository.save(user);
-
         errorList.put(1,"Successful");
         userReturn= new UserReturn(user,errorList);
         return userReturn;
@@ -102,20 +95,47 @@ public class UserController {
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.PUT)
-    public User editUser(@RequestParam("name") String name,
-                         @RequestParam("newpassword") String newpassword,
-                         @RequestParam("oldpassword")String oldpassword,
+    public UserReturn editUser(@RequestParam("name") String name,
                          HttpSession session) {
+        HashMap errorList = new HashMap();
+        UserReturn userReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
             user.setName(name);
-                if(BCrypt.checkpw(oldpassword,user.getPassword())){
-                    user.setPassword(BCrypt.hashpw(newpassword,user.getSalt()));
-                }
             userRepository.save(user);
-            return user;
+            errorList.put(0,"Successful");
+            userReturn = new UserReturn(errorList);
+            return userReturn;
+        }else{
+            errorList.put(-1,"Access Denied");
+            userReturn = new UserReturn(errorList);
+            return userReturn;
         }
-        return null;
+    }
+
+    @RequestMapping(value = "/password", method = RequestMethod.PUT)
+    public UserReturn ChangePass(@RequestParam("newpassword") String newpassword,
+                                 @RequestParam("oldpassword")String oldpassword,
+                                 HttpSession session){
+            HashMap errorList = new HashMap();
+            UserReturn userReturn;
+            User user = (User) session.getAttribute("abc");
+            if (user != null) {
+                if (BCrypt.checkpw(oldpassword, user.getPassword())) {
+                    user.setPassword(BCrypt.hashpw(newpassword, BCrypt.gensalt()));
+                    errorList.put(0, "Password is changed");
+                    userReturn = new UserReturn(errorList);
+                    return userReturn;
+                } else {
+                    errorList.put(-1, "Password is not correct");
+                    userReturn = new UserReturn(errorList);
+                    return userReturn;
+                }
+            }else{
+                errorList.put(-2,"Access Denied");
+                userReturn = new UserReturn(errorList);
+                return userReturn;
+            }
     }
 
     //List Nhanvien, list Duan có trong công ty mà chủ sở hữu
@@ -130,7 +150,7 @@ public class UserController {
                 user.setListcongty(congtyJpaRepository.findByBossid(id));
                 List<Congty> congtyList = congtyJpaRepository.findByBossid(id);
                 for (Congty congtyE : congtyList) {
-                    congtyE.setListNV(nhanvienJpaRepository.findByMacty(congtyE.getMacty()));
+                    congtyE.setListNV(congtyNhanvienRepository.findByCompanyid(congtyE.getMacty()));
                     congtyE.setListDA(duanJpaRepository.findByMacty(congtyE.getMacty()));
                     congtyJpaRepository.save(congtyE);
                 }

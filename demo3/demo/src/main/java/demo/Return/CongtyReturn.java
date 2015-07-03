@@ -13,7 +13,6 @@ import java.util.List;
 public class CongtyReturn extends ErrorList {
     private Congty congty;
 
-    @Transient
     List<Congty> congtyList;
 
     protected CongtyReturn(){}

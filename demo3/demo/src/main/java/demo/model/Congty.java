@@ -1,18 +1,17 @@
 package demo.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.util.List;
 
 /**
  * Created by Nguyen Hoang on 19-Jun-15.
  */
 @Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "cty")
 public class Congty {
     @Id
+    @Column(name = "companyid")
     private String macty;
     private String name;
     private String bossid;
@@ -26,7 +25,7 @@ public class Congty {
     }
 
     @Transient
-    private List<Nhanvien> listNV;
+    private List<CongtyNhanvien> listNV;
 
     @Transient
     private List<Duan> listDA;
@@ -40,13 +39,13 @@ public class Congty {
             this.listDA = listDA;
         }
 
-    public List<Nhanvien> getListNV() {
-            return listNV;
-        }
+    public List<CongtyNhanvien> getListNV() {
+        return listNV;
+    }
 
-    public void setListNV(List<Nhanvien> listNV) {
-            this.listNV = listNV;
-        }
+    public void setListNV(List<CongtyNhanvien> listNV) {
+        this.listNV = listNV;
+    }
 
     public String getMacty() {return macty;}
 

@@ -58,18 +58,6 @@ public class DuanController {
         return null;
     }
 
-    @RequestMapping(value ="/nvlogin",method= RequestMethod.POST)
-    public Integer NVLogin(@RequestParam("manager")String manv,
-                         @RequestParam("password")String password,
-                         HttpSession session) {
-        Nhanvien nhanvien = nhanvienJpaRepository.findOne(manv);
-        if (BCrypt.checkpw(password, nhanvien.getPassword())) {
-            session.setAttribute("manager",nhanvien);
-            return 0;
-        }else{
-            return -1;
-        }
-    }
     @RequestMapping(value = "/edit",method = RequestMethod.PUT)
     public Duan Edit(@RequestParam("name")String name,
                      @RequestParam("projectid")String projectid,
@@ -77,7 +65,7 @@ public class DuanController {
                      @RequestParam("macty")String macty,
                      HttpSession session) {
         Duan duan = duanJpaRepository.findOne(projectid);
-        Nhanvien managerDA = (Nhanvien) session.getAttribute("manager");
+        Nhanvien managerDA = (Nhanvien) session.getAttribute("nhanvien2");
         if(managerDA!=null) {
             if (duan != null) {
                 duan.setName(name);

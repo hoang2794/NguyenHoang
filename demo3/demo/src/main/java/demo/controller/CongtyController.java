@@ -40,7 +40,11 @@ public class CongtyController {
 
     @Autowired
     TaskJpaRepository taskJpaRepository;
+    @Autowired
+    CongtyNhanvienRepository congtyNhanvienRepository;
 
+    @Autowired
+    CongtyNhanvienController congtyNhanvienController;
     @RequestMapping(value="/add", method = RequestMethod.POST)
     public CongtyReturn ADD(@RequestParam("macty")String macty,
                       @RequestParam("name")String name,
@@ -69,38 +73,38 @@ public class CongtyController {
         return congtyReturn;
     }
 
-    @RequestMapping(value="/edit", method = RequestMethod.PUT)
-    public CongtyReturn Edit(@RequestParam("macty")String macty,
-                             @RequestParam("newmacty")String newmacty,
+    @RequestMapping(value="/editcompanyid", method = RequestMethod.PUT)
+    public CongtyReturn Edit(@RequestParam("companyid")String companyid,
+                             @RequestParam("newcompanyid")String newcompanyid,
                              @RequestParam("name")String name,
                              HttpSession session) {
         HashMap errorlist = new HashMap();
         CongtyReturn congtyReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Congty congty = congtyJpaRepository.findOne(macty);
+            Congty congty = congtyJpaRepository.findOne(companyid);
                 if (congty != null) {
                     if (user.getId().compareTo(congty.getBossid()) == 0) {
                         congty.setName(name);
-                        List<Duan> duanList = duanJpaRepository.findByMacty(macty);
+                        List<Duan> duanList = duanJpaRepository.findByMacty(companyid);
                         if(duanList!=null) {
                             int count = duanList.size();
                             for (int i = 0; i <= count; i++) {
                                 Duan duan = duanJpaRepository.findOne(duanList.get(i).getProjectid());
-                                duan.setMacty(newmacty);
+                                duan.setMacty(newcompanyid);
                                 duanJpaRepository.save(duan);
                             }
                         }
-                        List<Nhanvien> nhanvienList = nhanvienJpaRepository.findByMacty(macty);
-                        if(nhanvienList!=null) {
-                            int count1 = nhanvienList.size();
+                        List<CongtyNhanvien> congtyNhanvienList = congtyNhanvienRepository.findByCompanyid(companyid);
+                        if(congtyNhanvienList!=null) {
+                            int count1 = congtyNhanvienList.size();
                             for (int j = 0; j < count1; j++) {
-                                Nhanvien nhanvien = nhanvienJpaRepository.findOne(nhanvienList.get(j).getId());
-                                nhanvien.setMacty(newmacty);
-                                nhanvienJpaRepository.save(nhanvien);
+                                CongtyNhanvien congtyNhanvien = congtyNhanvienRepository.findByCompanyidAndEmployeeid(companyid,congtyNhanvienList.get(j).getEmployeeid());
+                                congtyNhanvien.setMacty(newcompanyid);
+                                congtyNhanvienRepository.save(congtyNhanvien);
                             }
                         }
-                        congty.setMacty(newmacty);
+                        congty.setMacty(newcompanyid);
                         congtyJpaRepository.save(congty);
                         errorlist.put(0, "Successfull");
                         congtyReturn = new CongtyReturn(congty, errorlist);
@@ -122,17 +126,51 @@ public class CongtyController {
         }
     }
 
-    @RequestMapping(value= "/delete",method = RequestMethod.DELETE)
-    public CongtyReturn Del(@RequestParam("macty")String macty,HttpSession session) {
+    @RequestMapping(value="/editname", method = RequestMethod.PUT)
+    public CongtyReturn Editname(@RequestParam("companyid")String companyid,
+                                 @RequestParam("name")String name,
+                                 HttpSession session) {
         HashMap errorlist = new HashMap();
         CongtyReturn congtyReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Congty congty = congtyJpaRepository.findOne(macty);
+            Congty congty = congtyJpaRepository.findOne(companyid);
             if (congty != null) {
                 if (user.getId().compareTo(congty.getBossid()) == 0) {
-                    nhanvienJpaRepository.deleteByMacty(macty);
-                    List<Duan> duanList = duanJpaRepository.findByMacty(macty);
+                    congty.setName(name);
+                    congtyJpaRepository.save(congty);
+                    errorlist.put(0, "Successfull");
+                    congtyReturn = new CongtyReturn(congty, errorlist);
+                    return congtyReturn;
+                } else {
+                    errorlist.put(-3, "You don't own this company");
+                    congtyReturn = new CongtyReturn(errorlist);
+                    return congtyReturn;
+                }
+            }else{
+                errorlist.put(-2,"Company is not exists");
+                congtyReturn= new CongtyReturn(errorlist);
+                return congtyReturn;
+            }
+        }else{
+            errorlist.put(-1,"Access Denied");
+            congtyReturn= new CongtyReturn(errorlist);
+            return congtyReturn;
+        }
+    }
+
+
+    @RequestMapping(value= "/delete",method = RequestMethod.DELETE)
+    public CongtyReturn Del(@RequestParam("companyid")String companyid,HttpSession session) {
+        HashMap errorlist = new HashMap();
+        CongtyReturn congtyReturn;
+        User user = (User) session.getAttribute("abc");
+        if (user != null) {
+            Congty congty = congtyJpaRepository.findOne(companyid);
+            if (congty != null) {
+                if (user.getId().compareTo(congty.getBossid()) == 0) {
+                    congtyNhanvienController.Delete(companyid,session);
+                    List<Duan> duanList = duanJpaRepository.findByMacty(companyid);
                     if (duanList != null) {
                         int count = duanList.size();
                         for (int i = 0; i < count; i++) {
@@ -161,18 +199,18 @@ public class CongtyController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public CongtyReturn ListNV(@RequestParam("macty")String macty,
+    public CongtyReturn ListNV(@RequestParam("companyid")String companyid,
                          HttpSession session) {
         HashMap errorlist = new HashMap();
         CongtyReturn congtyReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Congty congty = congtyJpaRepository.findOne(macty);
+            Congty congty = congtyJpaRepository.findOne(companyid);
             if (congty != null) {
                 if (user.getId().compareTo(congty.getBossid()) == 0) {
-                    congty.setListNV(nhanvienJpaRepository.findByMacty(macty));
-                    congty.setListDA(duanJpaRepository.findByMacty(macty));
-                    List<Duan> duanList = duanJpaRepository.findByMacty(macty);
+                    congty.setListNV(congtyNhanvienRepository.findByCompanyid(companyid));
+                    congty.setListDA(duanJpaRepository.findByMacty(companyid));
+                    List<Duan> duanList = duanJpaRepository.findByMacty(companyid);
                     if (duanList != null) {
                         for (Duan duanE : duanList) {
                             duanJpaRepository.save(duanController.List(duanE.getProjectid()));

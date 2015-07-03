@@ -7,21 +7,20 @@ import javax.persistence.*;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Table(name = "person")
 public abstract class Person {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private String id;
     private String name;
     private String password;
-    private String salt;
 
     protected Person(){
     }
 
-    public Person(String id,String name,String password,String salt){
-        this.id = id;
+    public Person(String name,String password){
         this.name = name;
         this.password = password;
-        this.salt = salt;
     }
 
     public String getId() {
@@ -48,11 +47,4 @@ public abstract class Person {
         this.password = password;
     }
 
-    public String getSalt() {
-        return salt;
-    }
-
-    public void setSalt(String salt) {
-        this.salt = salt;
-    }
 }

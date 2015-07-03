@@ -13,7 +13,6 @@ import java.util.List;
 public class UserReturn extends ErrorList {
     private User user;
 
-    @Transient
     private List<User> userList;
 
     protected UserReturn(){}

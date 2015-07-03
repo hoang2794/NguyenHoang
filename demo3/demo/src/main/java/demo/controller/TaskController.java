@@ -29,21 +29,6 @@ public class TaskController {
     @Autowired
     TaskJpaRepository taskJpaRepository;
 
-    @RequestMapping(value ="/nvlogin",method= RequestMethod.POST)
-    public Integer NVLogin(@RequestParam("manager")String manv,
-                           @RequestParam("password")String password,
-                           HttpSession session) {
-        Nhanvien nhanvien = nhanvienJpaRepository.findOne(manv);
-        if(nhanvien!=null) {
-            if (BCrypt.checkpw(password, nhanvien.getPassword())) {
-                session.setAttribute("manager", nhanvien);
-                return 0;
-            } else {
-                return -1;
-            }
-        }
-        return null;
-    }
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     public Task Add(@RequestParam("taskname")String name,
                     @RequestParam("projectid")String projectid,
@@ -86,7 +71,7 @@ public class TaskController {
     }
 
     @RequestMapping(value ="/delete", method = RequestMethod.DELETE)
-    public void Del(@RequestParam("taskid")String id,
+    public void Del(@RequestParam("projectid")String id,
                     HttpSession session){
         Nhanvien nhanvien = (Nhanvien) session.getAttribute("manager");
         if(nhanvien!=null) {
