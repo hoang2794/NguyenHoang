@@ -1,10 +1,11 @@
 package demo.controller;
 
-import demo.model.Nhanvien;
+import demo.Return.ResultCode;
+import demo.Return.TaskBean;
+import demo.model.Employee;
 import demo.model.Task;
 import demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,77 +21,85 @@ import java.util.List;
 @RequestMapping("/task")
 public class TaskController {
     @Autowired
-    DuanJpaRepository duanJpaRepository;
+    ProjectJpaRepository projectJpaRepository;
 
 
     @Autowired
-    NhanvienJpaRepository nhanvienJpaRepository;
+    EmployeeJpaRepository employeeJpaRepository;
 
     @Autowired
     TaskJpaRepository taskJpaRepository;
 
     @RequestMapping(value = "/add",method = RequestMethod.POST)
-    public Task Add(@RequestParam("taskname")String name,
+    public TaskBean Add(@RequestParam("taskname")String name,
                     @RequestParam("projectid")String projectid,
-                    @RequestParam("macty")String macty,
+                    @RequestParam("projectparentid")String projectparentid,
                     @RequestParam("parentid")String pid,
-                    HttpSession session){
-        Nhanvien nhanvien = (Nhanvien) session.getAttribute("nhanvien2");
-        if(nhanvien!=null){
-            if (duanJpaRepository.exists(projectid)) {
-                Task task = new Task(projectid,name,macty);
-                if (taskJpaRepository.exists(pid)) {
+                    HttpSession session) {
+        Employee employee = (Employee) session.getAttribute("nhanvien");
+        if (employee != null) {
+            if (projectJpaRepository.findByProjectid(projectparentid) != null) {
+                Task task = new Task(projectid, name,projectparentid);
+                if (taskJpaRepository.findByProjectid(pid) != null) {
                     task.setParentid(pid);
                 }
                 taskJpaRepository.save(task);
-                return task;
+                return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            } else {
+                return new TaskBean(ResultCode.RESULT_CODE_PROJECT_DOES_NOT_EXISTS);
             }
+        } else {
+            return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
-        return null;
     }
 
     @RequestMapping(value = "/edit",method = RequestMethod.PUT)
-    public Task Edit(@RequestParam("macty")String macty,
+    public TaskBean Edit(
                     @RequestParam("taskname")String name,
                     @RequestParam("projectid")String projectid,
-                    @RequestParam("pid")String pid,
                      HttpSession session){
-        Nhanvien nhanvien = (Nhanvien) session.getAttribute("nhanvien2");
-        if(nhanvien!=null) {
-            if(nhanvien.getMacty().compareTo(macty)==0){
-                if(nhanvien.getProjectid().compareTo(projectid)==0) {
-                    Task task = taskJpaRepository.findOne(projectid);
-                    task.setName(name);
-                    if (taskJpaRepository.exists(pid)) {
-                        task.setParentid(pid);
-                    }
-                }
+        Employee employee = (Employee) session.getAttribute("nhanvien2");
+        if(employee !=null) {
+            Task task = taskJpaRepository.findByProjectid(projectid);
+            if(task!=null) {
+                task.setName(name);
+                taskJpaRepository.save(task);
+                return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            }else{
+                return new TaskBean(ResultCode.RESULT_CODE_TASK_DOES_NOT_EXISTS);
             }
+        }else{
+            return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
-        return null;
     }
 
     @RequestMapping(value ="/delete", method = RequestMethod.DELETE)
-    public void Del(@RequestParam("projectid")String id,
+    public TaskBean Del(@RequestParam("projectid")String id,
                     HttpSession session){
-        Nhanvien nhanvien = (Nhanvien) session.getAttribute("manager");
-        if(nhanvien!=null) {
-            Task task = taskJpaRepository.findOne(id);
+        Employee employee = (Employee) session.getAttribute("manager");
+        if(employee !=null) {
+            Task task = taskJpaRepository.findByProjectid(id);
             if(task!=null){
                 taskJpaRepository.deleteByParentid(id);
                 taskJpaRepository.delete(task);
+                    return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            }else{
+                return new TaskBean(ResultCode.RESULT_CODE_TASK_DOES_NOT_EXISTS);
             }
+        }else {
+            return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value = "/listchild", method = RequestMethod.GET)
-    public Task List(@RequestParam("parentid")String pid) {
-        Task task = taskJpaRepository.findOne(pid);
+    public TaskBean List(@RequestParam("parentid")String pid) {
+        Task task = taskJpaRepository.findByProjectid(pid);
         if(task!=null) {
             task.setTaskChild(taskJpaRepository.findByParentid(pid));
             taskJpaRepository.save(task);
-            return task;
+            return new TaskBean(task,ResultCode.RESULT_CODE_SUCCESSFUL);
+        }else{
+            return new TaskBean(ResultCode.RESULT_CODE_TASK_DOES_NOT_EXISTS);
         }
-        return null;
     }
 }

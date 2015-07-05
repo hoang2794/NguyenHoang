@@ -1,15 +1,15 @@
 package demo.controller;
 
-import demo.model.Congty;
+import demo.Return.ResultCode;
+import demo.model.Company;
 import demo.model.User;
-import demo.Return.UserReturn;
+import demo.Return.UserBean;
 import demo.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,169 +22,128 @@ public class UserController {
     UserRepository userRepository;
 
     @Autowired
-    CongtyController congtyController;
+    CompanyController companyController;
 
     @Autowired
-    CongtyJpaRepository congtyJpaRepository;
+    CompanyJpaRepository companyJpaRepository;
 
     @Autowired
-    NhanvienJpaRepository nhanvienJpaRepository;
+    EmployeeJpaRepository employeeJpaRepository;
 
     @Autowired
-    DuanJpaRepository duanJpaRepository;
+    ProjectJpaRepository projectJpaRepository;
 
     @Autowired
-    CongtyNhanvienRepository congtyNhanvienRepository;
+    CompanyEmployeeRepository companyEmployeeRepository;
+
+    @Autowired
+    CompanyProjectorRepository companyProjectorRepository;
     @RequestMapping(value ="/get",method= RequestMethod.GET)
-    public User getUser(@RequestParam("id")String id) {
+    public User getUser(@RequestParam("id")Long id) {
         return userRepository.findOne(id);
     }
 
     @RequestMapping(value ="/login",method= RequestMethod.POST)
-    public UserReturn Login(@RequestParam("id")String id,
+    public UserBean Login(@RequestParam("id")Long id,
                         @RequestParam("password")String password,
                          HttpSession session) {
-        HashMap errorlist = new HashMap();
-        UserReturn userReturn;
         User user = userRepository.findOne(id);
         if (BCrypt.checkpw(password,user.getPassword())) {
             session.setAttribute("abc",user);
-            errorlist.put(0,"Successful");
-            userReturn = new UserReturn(user,errorlist);
-            return userReturn;
+            return new UserBean(user, ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
-            errorlist.put(-1,"Access Denied");
-            userReturn = new UserReturn(errorlist);
-            return userReturn;
+            return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value="/add",method = RequestMethod.POST)
-    public UserReturn putUser(@RequestParam("name") String name,
+    public UserBean putUser(@RequestParam("name") String name,
                               @RequestParam("password") String password) {
-        HashMap errorList = new HashMap();
-        UserReturn userReturn;
         User user = new User(name,BCrypt.hashpw(password,BCrypt.gensalt()));
         userRepository.save(user);
-        errorList.put(1,"Successful");
-        userReturn= new UserReturn(user,errorList);
-        return userReturn;
+        return new UserBean(user,ResultCode.RESULT_CODE_SUCCESSFUL);
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
-    public UserReturn deleteUser(@RequestParam("id") String id,
+    public UserBean deleteUser(@RequestParam("id") Long id,
                            HttpSession session) {
-        HashMap errorList = new HashMap();
-        UserReturn userReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            List<Congty> congtyList = congtyJpaRepository.findByBossid(id);
-            int count = congtyList.size();
+            List<Company> companyList = companyJpaRepository.findByBossid(id);
+            int count = companyList.size();
             for (int i = 0; i < count; i++) {
-                congtyController.Del(congtyList.get(i).getMacty(),session);
+                companyController.Del(companyList.get(i).getMacty(),session);
             }
             userRepository.delete(user);
-            errorList.put(2,"Successful");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(user, ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
-            errorList.put(0,"Access Denied");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.PUT)
-    public UserReturn editUser(@RequestParam("name") String name,
+    public UserBean editUser(@RequestParam("name") String name,
                          HttpSession session) {
-        HashMap errorList = new HashMap();
-        UserReturn userReturn;
         User user = (User) session.getAttribute("abc");
         if (user != null) {
             user.setName(name);
             userRepository.save(user);
-            errorList.put(0,"Successful");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(user, ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
-            errorList.put(-1,"Access Denied");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value = "/password", method = RequestMethod.PUT)
-    public UserReturn ChangePass(@RequestParam("newpassword") String newpassword,
+    public UserBean ChangePass(@RequestParam("newpassword") String newpassword,
                                  @RequestParam("oldpassword")String oldpassword,
                                  HttpSession session){
-            HashMap errorList = new HashMap();
-            UserReturn userReturn;
             User user = (User) session.getAttribute("abc");
             if (user != null) {
                 if (BCrypt.checkpw(oldpassword, user.getPassword())) {
                     user.setPassword(BCrypt.hashpw(newpassword, BCrypt.gensalt()));
-                    errorList.put(0, "Password is changed");
-                    userReturn = new UserReturn(errorList);
-                    return userReturn;
+                    return new UserBean(ResultCode.RESULT_CODE_PASSWORD_CHANGED);
                 } else {
-                    errorList.put(-1, "Password is not correct");
-                    userReturn = new UserReturn(errorList);
-                    return userReturn;
+                    return new UserBean(ResultCode.RESULT_CODE_PASSWORD_IS_NOT_CORRECT);
                 }
             }else{
-                errorList.put(-2,"Access Denied");
-                userReturn = new UserReturn(errorList);
-                return userReturn;
+                return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
     }
 
-    //List Nhanvien, list Duan có trong công ty mà chủ sở hữu
+    //List Employee, list Project có trong công ty mà chủ sở hữu
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public UserReturn List(@RequestParam("id")String id,
+    public UserBean List(@RequestParam("id")Long id,
                      HttpSession session) {
-        HashMap errorList = new HashMap();
-        UserReturn userReturn;
         User user = (User) session.getAttribute("abc");
         if(user!=null) {
             if(user.getId().compareTo(id)==0) {
-                user.setListcongty(congtyJpaRepository.findByBossid(id));
-                List<Congty> congtyList = congtyJpaRepository.findByBossid(id);
-                for (Congty congtyE : congtyList) {
-                    congtyE.setListNV(congtyNhanvienRepository.findByCompanyid(congtyE.getMacty()));
-                    congtyE.setListDA(duanJpaRepository.findByMacty(congtyE.getMacty()));
-                    congtyJpaRepository.save(congtyE);
+                user.setListcongty(companyJpaRepository.findByBossid(id));
+                List<Company> companyList = companyJpaRepository.findByBossid(id);
+                for (Company companyE : companyList) {
+                    companyE.setListNV(companyEmployeeRepository.findByCompanyid(companyE.getMacty()));
+                    companyE.setListDA(companyProjectorRepository.findByCompanyid(companyE.getMacty()));
+                    companyJpaRepository.save(companyE);
                 }
                 userRepository.save(user);
-                errorList.put(3, "OK");
-                userReturn = new UserReturn(user, errorList);
-                return userReturn;
+                return new UserBean(user,ResultCode.RESULT_CODE_SUCCESSFUL);
             }else{
-                errorList.put(-5, "You don't own this company");
-                userReturn = new UserReturn(errorList);
-                return userReturn;
+                return new UserBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
             }
         }else{
-            errorList.put(-4,"ERROR");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
 
         }
     }
 
     @RequestMapping(value = "/listboss",method = RequestMethod.POST)
-    public UserReturn Listboss(HttpSession session){
-        HashMap errorList = new HashMap();
-        UserReturn userReturn;
+    public UserBean Listboss(HttpSession session){
         User user = (User) session.getAttribute("abc");
         if (user != null) {
             List<User> userList = (List<User>) userRepository.findAll();
-            errorList.put(3,"OK");
-            userReturn = new UserReturn(userList,errorList);
-            return userReturn;
+            return new UserBean(userList,ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
-            errorList.put(-4,"ERROR");
-            userReturn = new UserReturn(errorList);
-            return userReturn;
+            return new UserBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 }

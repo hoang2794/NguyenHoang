@@ -1,27 +1,28 @@
 package demo.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import javax.persistence.*;
+import java.util.List;
 
 /**
  * Created by Nguyen Hoang on 03-Jul-15.
  */
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class Project {
-    @Id
+@Table(name = "project")
+public class Project extends Root {
+
     private String projectid;
     private String name;
-    private String macty;
+    @Transient
+    private List<Task> listTask;
 
+    @Transient
+    private List<ProjectEmployee> listNV;
     protected Project(){}
 
-    public Project(String projectid,String name,String macty){
+    public Project(String projectid,String name){
         this.projectid=projectid;
         this.name=name;
-        this.macty=macty;
     }
 
     public String getProjectid() {
@@ -40,11 +41,21 @@ public abstract class Project {
         this.name = name;
     }
 
-    public String getMacty() {
-        return macty;
+
+    public List<ProjectEmployee> getListNV() {
+        return listNV;
     }
 
-    public void setMacty(String macty) {
-        this.macty = macty;
+    public void setListNV(List<ProjectEmployee> listNV) {
+        this.listNV = listNV;
     }
+
+    public List<Task> getListTask() {
+        return listTask;
+    }
+
+    public void setListTask(List<Task> listTask) {
+        this.listTask = listTask;
+    }
+
 }

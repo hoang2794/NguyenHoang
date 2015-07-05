@@ -8,23 +8,21 @@ import java.util.List;
  */
 @Entity
 public class User extends Person {
-
-    protected User(){
-    }
+    private User(){}
 
     public User(String name,String password){
         super(name,password);
     }
 
     @Transient
-    private List<Congty> Listcongty;
+    private List<Company> listcongty;
 
-    public List<Congty> getListcongty() {
-        return Listcongty;
+    public List<Company> getListcongty() {
+        return listcongty;
     }
 
-    public void setListcongty(List<Congty> listcongty) {
-        this.Listcongty = listcongty;
+    public void setListcongty(List<Company> listcongty) {
+        this.listcongty = listcongty;
     }
 
 }
