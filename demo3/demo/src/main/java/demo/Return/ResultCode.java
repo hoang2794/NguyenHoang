@@ -16,5 +16,6 @@ public class ResultCode {
     public static final int RESULT_CODE_PASSWORD_IS_NOT_CORRECT=-51;
     public static final int RESULT_CODE_ADD_FAIL=-100;
     public static final int RESULT_CODE_PROJECT_AND_EMPLOYEE_DO_NOT_EXISTS=-200;
+    public static final int RESULT_CODE_ERROR = -1000;
 
 }

@@ -8,8 +8,7 @@ import java.util.List;
  * Created by Nguyen Hoang on 06-Jul-15.
  */
 public class TaskBean extends BeanBasic {
-    private Task task;
-
+    public Bean bean;
     private List<Task> taskchild;
 
 
@@ -23,16 +22,9 @@ public class TaskBean extends BeanBasic {
     }
     public TaskBean(Task task,Integer resultcode){
         super(resultcode,"TaskBean");
-        this.task=task;
+        this.bean = new Bean(task);
     }
 
-    public Task getTask() {
-        return task;
-    }
-
-    public void setTask(Task task) {
-        this.task = task;
-    }
 
     public List<Task> getTaskchild() {
         return taskchild;

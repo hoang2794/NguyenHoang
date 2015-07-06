@@ -37,23 +37,23 @@ public class EmployeeController {
                               HttpSession session){
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Employee employee = new Employee(name, pwnv);
+            Employee employee = new Employee(name, BCrypt.hashpw(pwnv,BCrypt.gensalt()));
             employeeJpaRepository.save(employee);
-            return new EmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            return new EmployeeBean(employee,ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
             return new EmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value ="/nvlogin",method= RequestMethod.POST)
-    public EmployeeBean NVlogin(@RequestParam("manv")String manv,
+    public EmployeeBean NVlogin(@RequestParam("employeeid")Long employeeid ,
                          @RequestParam("password")String password,
                          HttpSession session) {
-        Employee employee = employeeJpaRepository.findOne(manv);
+        Employee employee = employeeJpaRepository.findOne(employeeid);
         if(employee !=null) {
             if (BCrypt.checkpw(password, employee.getPassword())) {
-                session.setAttribute("nhanvien", employee);
-                return new EmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                session.setAttribute("employee", employee);
+                return new EmployeeBean(employee,ResultCode.RESULT_CODE_SUCCESSFUL);
             } else {
                 return new EmployeeBean(ResultCode.RESULT_CODE_PASSWORD_IS_NOT_CORRECT);
             }
@@ -64,11 +64,11 @@ public class EmployeeController {
     @RequestMapping(value = "/editname",method = RequestMethod.POST)
     public EmployeeBean Edit(@RequestParam("name") String name,
                                HttpSession session) {
-        Employee employee = (Employee) session.getAttribute("nhanvien");
+        Employee employee = (Employee) session.getAttribute("employee");
         if (employee != null) {
             employee.setName(name);
             employeeJpaRepository.save(employee);
-            return new EmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            return new EmployeeBean(employee,ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
             return new EmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
@@ -83,6 +83,7 @@ public class EmployeeController {
             if(BCrypt.checkpw(oldpass, employee.getPassword())){
                 employee.setPassword(BCrypt.hashpw(newpass,BCrypt.gensalt()));
                 employeeJpaRepository.save(employee);
+                session.invalidate();
                 return new EmployeeBean(ResultCode.RESULT_CODE_PASSWORD_CHANGED);
             }else{
                 return new EmployeeBean(ResultCode.RESULT_CODE_PASSWORD_IS_NOT_CORRECT);

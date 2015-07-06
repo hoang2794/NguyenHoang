@@ -9,11 +9,12 @@ import java.util.List;
  * Created by Nguyen Hoang on 04-Jul-15.
  */
 public interface CompanyEmployeeRepository extends JpaRepository<CompanyEmployee,Long> {
-    CompanyEmployee findByCompanyidAndEmployeeid(String companyid,String employeeid);
+    CompanyEmployee findByCompanyidAndEmployeeid(String companyid,Long employeeid);
 
     List<CompanyEmployee> deleteByCompanyid(String companyid);
 
     List<CompanyEmployee> deleteByEmployeeid(String employeeid);
 
     List<CompanyEmployee> findByCompanyid(String companyid);
+
 }

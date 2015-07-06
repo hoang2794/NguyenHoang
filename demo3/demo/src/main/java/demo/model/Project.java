@@ -9,8 +9,8 @@ import java.util.List;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table(name = "project")
-public class Project extends Root {
-
+public class Project extends RootTime {
+    protected Project(){}
     private String projectid;
     private String name;
     @Transient
@@ -18,7 +18,6 @@ public class Project extends Root {
 
     @Transient
     private List<ProjectEmployee> listNV;
-    protected Project(){}
 
     public Project(String projectid,String name){
         this.projectid=projectid;

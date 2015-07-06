@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Table (name="person")
-public class Person extends Root{
+public class Person extends RootTime{
     private String name;
     private String password;
 
@@ -19,7 +19,6 @@ public class Person extends Root{
         this.name = name;
         this.password = password;
     }
-
 
     public String getName() {
         return name;

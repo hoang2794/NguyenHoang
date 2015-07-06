@@ -17,5 +17,4 @@ public interface TaskJpaRepository extends JpaRepository<Task,String> {
 
     List<Task> deleteByProjectid(String projectid);
 
-    List<Task> findByProjectparentid(String projectparentid);
 }

@@ -1,9 +1,9 @@
 package demo.controller;
 
-import demo.Return.CompanyProjectorBean;
+import demo.Return.CompanyProjectBean;
 import demo.Return.ResultCode;
 import demo.model.Company;
-import demo.model.CompanyProjector;
+import demo.model.CompanyProject;
 import demo.model.User;
 import demo.repository.CompanyJpaRepository;
 import demo.repository.CompanyProjectorRepository;
@@ -16,13 +16,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 /**
  * Created by Nguyen Hoang on 04-Jul-15.
  */
 
 @RestController
-@RequestMapping("/companyprojector")
+@RequestMapping("/companyproject")
 public class CompanyProjectorController {
     @Autowired
     CompanyController companyController;
@@ -39,58 +40,80 @@ public class CompanyProjectorController {
     @Autowired
     CompanyJpaRepository companyJpaRepository;
     @RequestMapping(value = "/add",method = RequestMethod.POST)
-    public CompanyProjectorBean Add(@RequestParam("companyid")String companyid,
+    public CompanyProjectBean Add(@RequestParam("companyid")String companyid,
                                    @RequestParam("projectid")String projectid,
                                    HttpSession session) {
+        if(Check.Check(companyid) && Check.Check(projectid)) {
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Company company = companyJpaRepository.findOne(companyid);
-            if (user.getId() == company.getBossid()){
-                CompanyProjector companyProjector = new CompanyProjector();
-                companyProjector.setCompanyid(companyid);
-                companyProjector.setProjectid(projectid);
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_SUCCESSFUL);
-            }else{
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
+            Company company = companyJpaRepository.findByCompanyid(companyid);
+            if (user.getId() == company.getBossid()) {
+                CompanyProject companyProject = new CompanyProject();
+                companyProject.setCompanyid(companyid);
+                companyProject.setProjectid(projectid);
+                companyProjectorRepository.save(companyProject);
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+            } else {
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
             }
-        }else{
-            return new CompanyProjectorBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+        } else {
+            return new CompanyProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
+    }else {
+        return new CompanyProjectBean(ResultCode.RESULT_CODE_ERROR);
+    }
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public CompanyProjectorBean Delete(@RequestParam("companyid")String companyid,
+    public CompanyProjectBean Delete(@RequestParam("companyid")String companyid,
                                       @RequestParam("projectid")String projectid,
                                       HttpSession session) {
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Company company = companyJpaRepository.findOne(companyid);
+            Company company = companyJpaRepository.findByCompanyid(companyid);
             if (user.getId() == company.getBossid()) {
-                CompanyProjector companyProjector = companyProjectorRepository.findByCompanyidAndProjectid(companyid,projectid);
-                companyProjectorRepository.delete(companyProjector);
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                CompanyProject companyProject = companyProjectorRepository.findByCompanyidAndProjectid(companyid,projectid);
+                companyProjectorRepository.delete(companyProject);
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
             }else{
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
             }
         }else{
-            return new CompanyProjectorBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new CompanyProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value = "/deletebycompanyid", method = RequestMethod.POST)
-    public CompanyProjectorBean Deletebycompanyid(@RequestParam("companyid")String companyid,
+    public CompanyProjectBean Deletebycompanyid(@RequestParam("companyid")String companyid,
                                                  HttpSession session) {
         User user = (User) session.getAttribute("abc");
         if (user != null) {
-            Company company = companyJpaRepository.findOne(companyid);
+            Company company = companyJpaRepository.findByCompanyid(companyid);
             if (user.getId() == company.getBossid()) {
                 companyProjectorRepository.deleteByCompanyid(companyid);
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
             }else{
-                return new CompanyProjectorBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
             }
         }else{
-            return new CompanyProjectorBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new CompanyProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+        }
+    }
+
+    @RequestMapping(value = "/listbycompanyid",method = RequestMethod.GET)
+    public CompanyProjectBean ListByCompanyid(@RequestParam("companyid")String companyid,
+                                              HttpSession session){
+        User user = (User) session.getAttribute("abc");
+        if (user != null) {
+            Company company = companyJpaRepository.findByCompanyid(companyid);
+            if (user.getId() == company.getBossid()) {
+                List<CompanyProject> listbycompanyid = companyProjectorRepository.findByCompanyid(companyid);
+                return new CompanyProjectBean(listbycompanyid,ResultCode.RESULT_CODE_SUCCESSFUL);
+            }else{
+                return new CompanyProjectBean(ResultCode.RESULT_CODE_DONT_OWN_COMPANY);
+            }
+        }else{
+            return new CompanyProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 }

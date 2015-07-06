@@ -1,8 +1,7 @@
 package demo.controller;
 
-import demo.Return.ProjectorEmployeeBean;
+import demo.Return.ProjectEmployeeBean;
 import demo.Return.ResultCode;
-import demo.model.Company;
 import demo.model.ProjectEmployee;
 import demo.model.User;
 import demo.repository.CompanyJpaRepository;
@@ -33,30 +32,34 @@ public class ProjectEmployeeController {
     @Autowired
     CompanyJpaRepository companyJpaRepository;
     @RequestMapping(value = "/add",method = RequestMethod.POST)
-    public ProjectorEmployeeBean Add(@RequestParam("employeeid")Long employeeid,
+    public ProjectEmployeeBean Add(@RequestParam("employeeid")Long employeeid,
                                     @RequestParam("projectid")String projectid,
                                      @RequestParam("manager")Integer manager,
                                     HttpSession session) {
-        User user = (User) session.getAttribute("abc");
-        if (user != null) {
-            ProjectEmployee check = projectorEmployeeRepository.findByProjectidAndEmployeeid(projectid,employeeid);
-            if(check!=null){
-                return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_ADD_FAIL);
-            }else {
-                ProjectEmployee projectEmployee = new ProjectEmployee();
-                projectEmployee.setEmployeeid(employeeid);
-                projectEmployee.setProjectid(projectid);
-                projectEmployee.setManager(manager);
-                projectorEmployeeRepository.save(projectEmployee);
-                return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+        if(Check.Check(projectid)) {
+            User user = (User) session.getAttribute("abc");
+            if (user != null) {
+                ProjectEmployee check = projectorEmployeeRepository.findByProjectidAndEmployeeid(projectid, employeeid);
+                if (check != null) {
+                    return new ProjectEmployeeBean(ResultCode.RESULT_CODE_ADD_FAIL);
+                } else {
+                    ProjectEmployee projectEmployee = new ProjectEmployee();
+                    projectEmployee.setEmployeeid(employeeid);
+                    projectEmployee.setProjectid(projectid);
+                    projectEmployee.setManager(manager);
+                    projectorEmployeeRepository.save(projectEmployee);
+                    return new ProjectEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                }
+            } else {
+                return new ProjectEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
         }else{
-            return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new ProjectEmployeeBean(ResultCode.RESULT_CODE_ERROR);
         }
     }
 
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    public ProjectorEmployeeBean Delete(@RequestParam("employeeid")Long employeeid,
+    public ProjectEmployeeBean Delete(@RequestParam("employeeid")Long employeeid,
                                        @RequestParam("projectid")String projectid,
                                        HttpSession session) {
         User user = (User) session.getAttribute("abc");
@@ -64,24 +67,24 @@ public class ProjectEmployeeController {
                 ProjectEmployee projectEmployee = projectorEmployeeRepository.findByProjectidAndEmployeeid(projectid,employeeid);
                 if(projectEmployee!=null) {
                     projectorEmployeeRepository.delete(projectEmployee);
-                    return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                    return new ProjectEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
             }else{
-                return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_PROJECT_AND_EMPLOYEE_DO_NOT_EXISTS);
+                return new ProjectEmployeeBean(ResultCode.RESULT_CODE_PROJECT_AND_EMPLOYEE_DO_NOT_EXISTS);
             }
         }else{
-            return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new ProjectEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 
     @RequestMapping(value = "/deletebyprojectid", method = RequestMethod.POST)
-    public ProjectorEmployeeBean Deletebycompanyid(@RequestParam("companyid")String projectid,
+    public ProjectEmployeeBean Deletebycompanyid(@RequestParam("companyid")String projectid,
                                                   HttpSession session) {
         User user = (User) session.getAttribute("abc");
         if (user != null) {
                 projectorEmployeeRepository.deleteByProjectid(projectid);
-                return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                return new ProjectEmployeeBean(ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
-            return new ProjectorEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new ProjectEmployeeBean(ResultCode.RESULT_CODE_ACCESSDENIED);
         }
     }
 }

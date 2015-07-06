@@ -7,7 +7,7 @@ import javax.persistence.Table;
  * Created by Nguyen Hoang on 04-Jul-15.
  */
 @Entity
-@Table(name="projectoremployee")
+@Table(name="projectemployee")
 public class ProjectEmployee extends Root{
     private Long employeeid;
     private String projectid;

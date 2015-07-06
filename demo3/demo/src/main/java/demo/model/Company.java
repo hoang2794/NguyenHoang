@@ -8,10 +8,8 @@ import java.util.List;
  */
 @Entity
 @Table(name = "company")
-public class Company {
-    @Id
-    @Column(name = "companyid")
-    private String macty;
+public class Company extends RootTime {
+    private String companyid;
     private String name;
     private Long bossid;
 
@@ -28,13 +26,13 @@ public class Company {
     private List<CompanyEmployee> listNV;
 
     @Transient
-    private List<CompanyProjector> listDA;
+    private List<CompanyProject> listDA;
 
-    public List<CompanyProjector> getListDA() {
+    public List<CompanyProject> getListDA() {
         return listDA;
     }
 
-    public void setListDA(List<CompanyProjector> listDA) {
+    public void setListDA(List<CompanyProject> listDA) {
         this.listDA = listDA;
     }
 
@@ -46,12 +44,15 @@ public class Company {
         this.listNV = listNV;
     }
 
-    public String getMacty() {return macty;}
-
-    public void setMacty(String macty) {this.macty = macty;}
-
     public String getName() {return name;}
 
     public void setName(String name) {this.name = name;}
 
+    public String getCompanyid() {
+        return companyid;
+    }
+
+    public void setCompanyid(String companyid) {
+        this.companyid = companyid;
+    }
 }

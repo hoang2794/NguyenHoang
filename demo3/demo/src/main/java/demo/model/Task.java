@@ -9,10 +9,9 @@ import java.util.List;
 @Entity
 @Table(name="task")
 public class Task extends Project {
-    private String projectparentid;
+    private Task(){}
     private String parentid;
 
-    protected Task(){}
 
     public Task(String projectid,String name){
         super(projectid,name);
@@ -23,21 +22,8 @@ public class Task extends Project {
         this.parentid = parentid;
     }
 
-    public Task(String projectid,String name,String projectparentid,String parentid){
-        super(projectid,name);
-        this.parentid=parentid;
-        this.projectparentid=projectparentid;
-    }
     @Transient
     private List<Task> TaskChild;
-
-    public String getProjectparentid() {
-        return projectparentid;
-    }
-
-    public void setProjectparentid(String projectparentid) {
-        this.projectparentid = projectparentid;
-    }
 
     public List<Task> getTaskChild() {
         return TaskChild;

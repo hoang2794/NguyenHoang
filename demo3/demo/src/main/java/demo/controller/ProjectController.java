@@ -40,21 +40,25 @@ public class ProjectController {
     public ProjectBean Add(@RequestParam("projectid")String projectid,
                     @RequestParam("name")String name,
                     HttpSession session) {
-        User user = (User) session.getAttribute("abc");
-        if(user!=null){
-            if(projectJpaRepository.exists(projectid)){
-                return new ProjectBean(ResultCode.RESULT_CODE_ADD_FAIL);
-            } else{
-                Project project = new Project(projectid,name);
-                projectJpaRepository.save(project);
-                return new ProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+        if(Check.Check(projectid)) {
+            User user = (User) session.getAttribute("abc");
+            if (user != null) {
+                if (projectJpaRepository.findByProjectid(projectid) != null) {
+                    return new ProjectBean(ResultCode.RESULT_CODE_ADD_FAIL);
+                } else {
+                    Project project = new Project(projectid, name);
+                    projectJpaRepository.save(project);
+                    return new ProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                }
+            } else {
+                return new ProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
-        }else{
-            return new ProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
-        }
+        }else {
+                return new ProjectBean(ResultCode.RESULT_CODE_ERROR);
+            }
     }
 
-    @RequestMapping(value = "/editname",method = RequestMethod.PUT)
+    @RequestMapping(value = "/editname",method = RequestMethod.POST)
     public ProjectBean Edit(@RequestParam("name")String name,
                           @RequestParam("projectid")String projectid,
                           HttpSession session) {
@@ -74,34 +78,38 @@ public class ProjectController {
     }
 
 
-    @RequestMapping(value = "/editprojectid",method = RequestMethod.PUT)
+    @RequestMapping(value = "/editprojectid",method = RequestMethod.POST)
     public ProjectBean EditProjectId(@RequestParam("projectid")String projectid,
                                    @RequestParam("newprojectid")String newprojectid,
                                    HttpSession session) {
-        Project project = projectJpaRepository.findByProjectid(projectid);
-        User user = (User) session.getAttribute("abc");
-        if(user!=null){
-            if(project !=null) {
-                List<Task> taskList = taskJpaRepository.findByParentid(projectid);  //tìm task có chung mã dự án
-                int count = taskList.size();
-                for (int i = 0; i <= count; i++) {
-                    Task task = taskJpaRepository.findByProjectid(taskList.get(i).getProjectid());
-                    task.setProjectid(newprojectid);  // set mã dự án mới
-                    taskJpaRepository.save(task);
+        if (Check.Check(projectid)) {
+            Project project = projectJpaRepository.findByProjectid(projectid);
+            User user = (User) session.getAttribute("abc");
+            if (user != null) {
+                if (project != null) {
+                    List<Task> taskList = taskJpaRepository.findByParentid(projectid);  //tìm task có chung mã dự án
+                    int count = taskList.size();
+                    for (int i = 0; i <= count; i++) {
+                        Task task = taskJpaRepository.findByProjectid(taskList.get(i).getProjectid());
+                        task.setProjectid(newprojectid);  // set mã dự án mới
+                        taskJpaRepository.save(task);
+                    }
+                    project.setProjectid(newprojectid);
+                    projectJpaRepository.save(project);
+                    return new ProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                } else {
+                    return new ProjectBean(ResultCode.RESULT_CODE_PROJECT_DOES_NOT_EXISTS);
                 }
-                project.setProjectid(newprojectid);
-                projectJpaRepository.save(project);
-                return new ProjectBean(ResultCode.RESULT_CODE_SUCCESSFUL);
-            }else{
-                return new ProjectBean(ResultCode.RESULT_CODE_PROJECT_DOES_NOT_EXISTS);
+            } else {
+                return new ProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
-        }else{
-            return new ProjectBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+        } else {
+            return new ProjectBean(ResultCode.RESULT_CODE_ERROR);
         }
     }
 
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public ProjectBean Del(@RequestParam("projectid")String projectid,
                            HttpSession session) {
         User user = (User) session.getAttribute("boss");
@@ -125,8 +133,8 @@ public class ProjectController {
             Project project = projectJpaRepository.findByProjectid(projectid);
         if(project !=null) {
             project.setListNV(projectorEmployeeRepository.findByProjectid(projectid));
-            project.setListTask(taskJpaRepository.findByProjectparentid(projectid));
-            List<Task> taskList = taskJpaRepository.findByProjectparentid(projectid);
+            project.setListTask(taskJpaRepository.findByParentid(projectid));
+            List<Task> taskList = taskJpaRepository.findByParentid(projectid);
             for (Task taskE : taskList) {
                 taskE.setTaskChild(taskJpaRepository.findByParentid(taskE.getParentid()));
                 taskJpaRepository.save(taskE);

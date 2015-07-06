@@ -1,5 +1,6 @@
 package demo.controller;
 
+import antlr.StringUtils;
 import demo.Return.ResultCode;
 import demo.model.Company;
 import demo.model.User;
@@ -60,11 +61,12 @@ public class UserController {
     public UserBean putUser(@RequestParam("name") String name,
                               @RequestParam("password") String password) {
         User user = new User(name,BCrypt.hashpw(password,BCrypt.gensalt()));
+        user.setTimecreate(System.currentTimeMillis());
         userRepository.save(user);
         return new UserBean(user,ResultCode.RESULT_CODE_SUCCESSFUL);
     }
 
-    @RequestMapping(value = "/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     public UserBean deleteUser(@RequestParam("id") Long id,
                            HttpSession session) {
         User user = (User) session.getAttribute("abc");
@@ -72,7 +74,7 @@ public class UserController {
             List<Company> companyList = companyJpaRepository.findByBossid(id);
             int count = companyList.size();
             for (int i = 0; i < count; i++) {
-                companyController.Del(companyList.get(i).getMacty(),session);
+                companyController.Del(companyList.get(i).getCompanyid(),session);
             }
             userRepository.delete(user);
             return new UserBean(user, ResultCode.RESULT_CODE_SUCCESSFUL);
@@ -81,12 +83,13 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/edit", method = RequestMethod.PUT)
+    @RequestMapping(value = "/edit", method = RequestMethod.POST)
     public UserBean editUser(@RequestParam("name") String name,
                          HttpSession session) {
         User user = (User) session.getAttribute("abc");
         if (user != null) {
             user.setName(name);
+            user.setTimeupdate(System.currentTimeMillis());
             userRepository.save(user);
             return new UserBean(user, ResultCode.RESULT_CODE_SUCCESSFUL);
         }else{
@@ -94,7 +97,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/password", method = RequestMethod.PUT)
+    @RequestMapping(value = "/password", method = RequestMethod.POST)
     public UserBean ChangePass(@RequestParam("newpassword") String newpassword,
                                  @RequestParam("oldpassword")String oldpassword,
                                  HttpSession session){
@@ -102,6 +105,7 @@ public class UserController {
             if (user != null) {
                 if (BCrypt.checkpw(oldpassword, user.getPassword())) {
                     user.setPassword(BCrypt.hashpw(newpassword, BCrypt.gensalt()));
+                    user.setTimeupdate(System.currentTimeMillis());
                     return new UserBean(ResultCode.RESULT_CODE_PASSWORD_CHANGED);
                 } else {
                     return new UserBean(ResultCode.RESULT_CODE_PASSWORD_IS_NOT_CORRECT);
@@ -121,8 +125,8 @@ public class UserController {
                 user.setListcongty(companyJpaRepository.findByBossid(id));
                 List<Company> companyList = companyJpaRepository.findByBossid(id);
                 for (Company companyE : companyList) {
-                    companyE.setListNV(companyEmployeeRepository.findByCompanyid(companyE.getMacty()));
-                    companyE.setListDA(companyProjectorRepository.findByCompanyid(companyE.getMacty()));
+                    companyE.setListNV(companyEmployeeRepository.findByCompanyid(companyE.getCompanyid()));
+                    companyE.setListDA(companyProjectorRepository.findByCompanyid(companyE.getCompanyid()));
                     companyJpaRepository.save(companyE);
                 }
                 userRepository.save(user);

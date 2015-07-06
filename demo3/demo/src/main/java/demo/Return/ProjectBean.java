@@ -8,8 +8,7 @@ import java.util.List;
  * Created by Nguyen Hoang on 05-Jul-15.
  */
 public class ProjectBean extends BeanBasic {
-    private Project project;
-
+    public Bean bean;
     List<Project> projectList;
     protected ProjectBean(){}
 
@@ -19,7 +18,7 @@ public class ProjectBean extends BeanBasic {
 
     public ProjectBean(Project project,Integer resultcode){
         super(resultcode,"ProjectBean");
-        this.project=project;
+        this.bean = new Bean(project);
     }
 
     public ProjectBean(List<Project> projectList,Integer resultcode){
@@ -27,13 +26,6 @@ public class ProjectBean extends BeanBasic {
         this.projectList=projectList;
     }
 
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
 
     public List<Project> getProjectList() {
         return projectList;

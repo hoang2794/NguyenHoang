@@ -42,6 +42,8 @@ public abstract class BeanBasic {
             put(-51, "PASSWORD IS NOT CORRECT");
             put(-100, "ADD FAIL");
             put(-200, "PROJECT AND EMPLOYEE EXISTS");
+            put(10,"PASSWORD IS CHANGED");
+            put(-1000,"ERRROR");
         }
     };
 

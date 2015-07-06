@@ -33,50 +33,54 @@ public class TaskController {
     @RequestMapping(value = "/add",method = RequestMethod.POST)
     public TaskBean Add(@RequestParam("taskname")String name,
                     @RequestParam("projectid")String projectid,
-                    @RequestParam("projectparentid")String projectparentid,
                     @RequestParam("parentid")String pid,
                     HttpSession session) {
-        Employee employee = (Employee) session.getAttribute("nhanvien");
-        if (employee != null) {
-            if (projectJpaRepository.findByProjectid(projectparentid) != null) {
-                Task task = new Task(projectid, name,projectparentid);
-                if (taskJpaRepository.findByProjectid(pid) != null) {
-                    task.setParentid(pid);
+        if (Check.Check(projectid) && Check.Check(pid)) {
+            Employee employee = (Employee) session.getAttribute("employee");
+            if (employee != null) {
+                if (projectJpaRepository.findByProjectid(pid) != null) {
+                    Task task = new Task(projectid, name, pid);
+                    taskJpaRepository.save(task);
+                    return new TaskBean(task, ResultCode.RESULT_CODE_SUCCESSFUL);
+                } else {
+                    return new TaskBean(ResultCode.RESULT_CODE_PROJECT_DOES_NOT_EXISTS);
                 }
-                taskJpaRepository.save(task);
-                return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
             } else {
-                return new TaskBean(ResultCode.RESULT_CODE_PROJECT_DOES_NOT_EXISTS);
+                return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
-        } else {
-            return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+        }else{
+            return new TaskBean(ResultCode.RESULT_CODE_ERROR);
         }
     }
 
-    @RequestMapping(value = "/edit",method = RequestMethod.PUT)
+    @RequestMapping(value = "/edit",method = RequestMethod.POST)
     public TaskBean Edit(
                     @RequestParam("taskname")String name,
                     @RequestParam("projectid")String projectid,
                      HttpSession session){
-        Employee employee = (Employee) session.getAttribute("nhanvien2");
-        if(employee !=null) {
-            Task task = taskJpaRepository.findByProjectid(projectid);
-            if(task!=null) {
-                task.setName(name);
-                taskJpaRepository.save(task);
-                return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
-            }else{
-                return new TaskBean(ResultCode.RESULT_CODE_TASK_DOES_NOT_EXISTS);
+        if(Check.Check(projectid)) {
+            Employee employee = (Employee) session.getAttribute("employee");
+            if (employee != null) {
+                Task task = taskJpaRepository.findByProjectid(projectid);
+                if (task != null) {
+                    task.setName(name);
+                    taskJpaRepository.save(task);
+                    return new TaskBean(ResultCode.RESULT_CODE_SUCCESSFUL);
+                } else {
+                    return new TaskBean(ResultCode.RESULT_CODE_TASK_DOES_NOT_EXISTS);
+                }
+            } else {
+                return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
             }
         }else{
-            return new TaskBean(ResultCode.RESULT_CODE_ACCESSDENIED);
+            return new TaskBean(ResultCode.RESULT_CODE_ERROR);
         }
     }
 
-    @RequestMapping(value ="/delete", method = RequestMethod.DELETE)
+    @RequestMapping(value ="/delete", method = RequestMethod.POST)
     public TaskBean Del(@RequestParam("projectid")String id,
                     HttpSession session){
-        Employee employee = (Employee) session.getAttribute("manager");
+        Employee employee = (Employee) session.getAttribute("employee");
         if(employee !=null) {
             Task task = taskJpaRepository.findByProjectid(id);
             if(task!=null){

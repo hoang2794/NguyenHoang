@@ -10,7 +10,7 @@ import javax.persistence.*;
 public class CompanyEmployee extends Root{
 
     private String companyid;
-    private String employeeid;
+    private Long employeeid;
 
 
     public String getCompanyid() {
@@ -21,11 +21,11 @@ public class CompanyEmployee extends Root{
         this.companyid = companyid;
     }
 
-    public String getEmployeeid() {
+    public Long getEmployeeid() {
         return employeeid;
     }
 
-    public void setEmployeeid(String employeeid) {
+    public void setEmployeeid(Long employeeid) {
         this.employeeid = employeeid;
     }
 }
